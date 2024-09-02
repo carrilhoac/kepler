@@ -1,11 +1,55 @@
 
 #include "test.h"
 
+#include <fstream>
+#include <sstream>
+#include <string>
+
 static int test_geodesic()
 {
-  double d;
-  Spheroid wgs84(ELLPS_WGS84);
+  struct ref_entry
+  {
+    double lon1, lat1;
+    double lon2, lat2;
+    double dist_meters;
+  };
   
+  double d;
+  std::ifstream ref;
+  std::string line;
+  
+  ref.open("data/geodesic_distances.txt");
+  
+  if(!ref.is_open())
+    fail("unable to open data file \'geodesic_distances.txt\'");
+  
+  Spheroid wgs84(SPHEROID_WGS84);
+  
+  while(ref.good()){
+    std::getline(ref, line);
+    
+    if(line.length()){
+      // skip if not entry
+      if(line[0]!='G')
+        continue;
+      
+      std::stringstream ss(line.substr(1, std::string::npos));
+      ref_entry cur;
+      
+      ss >> cur.lon1; ss >> cur.lat1;
+      ss >> cur.lon2; ss >> cur.lat2;
+      ss >> cur.dist_meters;
+      
+      d=wgs84.geodesic(
+        cur.lat1,cur.lon1, 
+        cur.lat2,cur.lon2);
+      
+      if(fabs(d-cur.dist_meters)>0.0005)
+        fail("incorrect geodesic distance");
+    }
+  }
+  
+  // one test instance hard-coded
   // distance between PPTE and BRAZ (RBMC)
   d=wgs84.geodesic(
     -22.119904740399434, -51.408534025148890, // PPTE
@@ -24,7 +68,7 @@ static int test_geo2ecf()
   double geo[3]={-22.119904740399434, -51.408534025148890, 431.049};
   double xyz[3]={0};
   
-  Spheroid grs80(ELLPS_GRS80);
+  Spheroid grs80(SPHEROID_GRS80);
   grs80.geo2ecf(geo, xyz);
   
   xyz[0]-=ref[0];
@@ -45,7 +89,7 @@ static int test_ecf2geo()
   double geo[3]={0};
   double xyz[3]={3687624.3672, -4620818.6825, -2386880.3804};
   
-  Spheroid grs80(ELLPS_GRS80);
+  Spheroid grs80(SPHEROID_GRS80);
   grs80.ecf2geo(xyz, geo);
   
   geo[0]-=ref[0];
@@ -68,7 +112,7 @@ static int test_geo2utm()
   int zone;
   char h;
   
-  Spheroid grs80(ELLPS_GRS80);
+  Spheroid grs80(SPHEROID_GRS80);
   grs80.geo2utm(geo, utm,&zone,&h);
   
   if(zone!=22||h!='S')
@@ -90,7 +134,7 @@ static int test_utm2geo()
   double geo[2]={0};
   double utm[2]={457866.057,7553844.609};
   
-  Spheroid grs80(ELLPS_GRS80);
+  Spheroid grs80(SPHEROID_GRS80);
   grs80.utm2geo(utm, geo, 22,'S');
   
   //printf("%.9f %.9f\n",geo[0],geo[1]);
@@ -113,5 +157,4 @@ void test_ellps()
   test_ecf2geo();
   test_geo2utm();
   test_utm2geo();
-  //std::cout<<"[ELLPS] all tests run successfully"<<std::endl;
 }

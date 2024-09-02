@@ -32,8 +32,10 @@ static void chol(double *A, int n)
     for(k=0;k<j;k++)
       x-=A[j*n+k]*A[j*n+k];
 #ifdef DEBUG
-    if(x<0.0)
-      error("matrix is not S.P.D.");
+    if(x<0.0){
+      warn("matrix is not S.P.D.");
+      return;
+    }
 #endif 
     x=sqrt(x);
     A[j*n+j]=x;
@@ -209,7 +211,7 @@ static void mat_inv2x2(const double *A, double *B)
   det= A[0]*A[3]-A[1]*A[2];
 #ifdef DEBUG
   if(fabs(det)<EPS)
-    error("matrix is singular or near singular");
+    warn("matrix is singular or near singular");
 #endif
   inv_det = 1.0 / det;
   B[0]= inv_det*A[3];
@@ -234,7 +236,7 @@ static void mat_inv3x3(const double *A, double *B)
   
 #ifdef DEBUG
   if(fabs(det)<EPS)
-    error("matrix is singular or near singular");
+    warn("matrix is singular or near singular");
 #endif
 
   inv_det = 1.0 / det;  
@@ -283,7 +285,7 @@ static void mat_inv4x4(const double *A, double *B)
   
 #ifdef DEBUG
   if(fabs(det)<EPS)
-    error("matrix is singular or near singular");
+    warn("matrix is singular or near singular");
 #endif
 
   inv_det = 1.0 / det;  
@@ -321,7 +323,7 @@ Mat Mat::inv() const
     det=ludcmp(LU,n,n,piv);
 #ifdef DEBUG
     if(fabs(det)<EPS)
-      error("matrix is singular or near singular");
+      warn("matrix is singular or near singular");
 #endif
     lubksb(LU,n,B,piv);
     for(int i=0; i<n; i++){
@@ -333,6 +335,7 @@ Mat Mat::inv() const
   }
   return Q;
 }
+#undef SWAP
 
 Mat Mat::operator*(const Mat& b) const
 {

@@ -17,12 +17,11 @@
 
 void error_(const char *from, const char *msg);
 void warn_(const char *from, const char *msg);
-
 #define error(x) error_(__PRETTY_FUNCTION__, x)
 #define warn(x) warn_(__PRETTY_FUNCTION__, x)
 
 // ---------------------------------------------------------------------------
-//  Time point
+//  Time point (needs refactoring)
 // ---------------------------------------------------------------------------
 struct epoch_t{
   int64_t t_sec;
@@ -37,32 +36,31 @@ double timesub(const epoch_t& a, const epoch_t& b);
 // ---------------------------------------------------------------------------
 //  Spheroid 
 // ---------------------------------------------------------------------------
-enum ELLPS{
-  ELLPS_WGS84,
-  ELLPS_GRS80
+enum SPHEROID{
+  SPHEROID_WGS66,
+  SPHEROID_WGS72,
+  SPHEROID_WGS84,
+  SPHEROID_GRS67,
+  SPHEROID_GRS80,
+  SPHEROID_PZ90 ,
+  SPHEROID_SAD69
 };
 
 class Spheroid{
 private:
   double a,b,f,e,e2,pr;
-  double alpha[8],beta[8];
-  
+  double alpha[8],beta[8];  
 public:
-  Spheroid(ELLPS ellps=ELLPS_WGS84);
-  void set(ELLPS ellps);
-  void set(double a_, double f_);
-  
+  Spheroid(SPHEROID ellps=SPHEROID_WGS84);
+  void set(SPHEROID ellps);
+  void set(double a_, double f_);  
   double geodesic(double lat1deg, double lon1deg, 
                   double lat2deg, double lon2deg) const;
-  
   void ecf2geo(const double *xyz, double *geo) const;
   void geo2ecf(const double *geo, double *xyz) const;
-  
   void utm2geo(const double *utm, double *geo, int zone, char h) const;
   void geo2utm(const double *geo, double *utm, int *zone, char *h) const;
-  
   static double utmscale(double lon_deg);
-  
 private:
   static void utmzone(double lon_deg, int *zone, double *cm_deg);
   double cnflat(double phi) const;
@@ -72,56 +70,77 @@ private:
 #define MATRIX_EPS 1e-11
 
 // ---------------------------------------------------------------------------
-//  Matrix 
+//  Matrix (row-major layout)
 // ---------------------------------------------------------------------------
 class Mat{
 private:
   int m,n;
   std::vector<double> mat;
-  
 public:
   Mat(int m_=3, int n_=3);
   Mat(const Mat& b);
-  
   Mat& zero();
   Mat& eye(); 
-  
   Mat t() const;
   Mat inv() const;
   //Mat invspd() const;
   //double det() const;
   double tr() const;
-  
   int rows() const{ return m; }
   int cols() const{ return n; }
-  
         double* data()      { return &mat[0]; }
   const double* data() const{ return &mat[0]; }
-  
         double& operator()(int i, int j);
   const double& operator()(int i, int j) const;
-  
   Mat operator*(const Mat& b) const;
   Mat operator+(const Mat& b) const;
   Mat operator-(const Mat& b) const;
   Mat operator*(double s) const;
   Mat operator/(double s) const;
   Mat operator-() const;
-  
   Mat& operator=(const Mat& b);
   Mat& operator+=(const Mat& b);
   Mat& operator-=(const Mat& b);
   Mat& operator*=(double s);
   Mat& operator/=(double s);
-    
   bool issquare() const{ return m==n; }
   bool iszero(double tol=MATRIX_EPS) const;
   bool issymmetric(double tol=MATRIX_EPS) const;
   bool isidentity(double tol=MATRIX_EPS) const;
-  
   bool compare(const Mat& b, double tol=MATRIX_EPS) const;
   bool operator==(const Mat& b) const{ return compare(b); }
-  friend std::ostream& operator << (std::ostream& os, const Mat& b);
+  friend std::ostream& operator<<(std::ostream& os, const Mat& b);
 };
-  
+
+// ---------------------------------------------------------------------------
+//  Broadcast ephemeris
+// ---------------------------------------------------------------------------
+struct Nav{
+public:
+  char prn[4];
+//int sat;            // satellite number 
+  int iode,iodc;      // IODE,IODC 
+  int sva;            // SV accuracy (URA index) 
+  int svh;            // SV health (0:ok) 
+  int week;           // GPS/QZS: gps week, GAL: galileo week 
+  int code;           // GPS/QZS: code on L2, GAL/CMP: data sources 
+  int flag;           // GPS/QZS: L2 P data flag, CMP: nav type 
+  epoch_t toe,toc,ttr;// Toe,Toc,T_trans 
+                      // SV orbit parameters 
+  double A,e,i0,OMG0,omg,M0,deln,OMGd,idot;
+  double crc,crs,cuc,cus,cic,cis;
+  double toes;        // Toe (s) in week 
+  double fit;         // fit interval (h) 
+  double f0,f1,f2;    // SV clock parameters (af0,af1,af2) 
+  double tgd[4];      // group delay parameters 
+                      // GPS/QZS:tgd[0]=TGD 
+                      // GAL    :tgd[0]=BGD E5a/E1,tgd[1]=BGD E5b/E1 
+                      // CMP    :tgd[0]=BGD1,tgd[1]=BGD2 
+  double Adot,ndot;   // Adot,ndot for CNAV 
+public:
+  Nav(const char *rnx);
+  void rnx2nav(const char *rnx);
+  void nav2ecf(const epoch_t& t, double *xyz, double *clk_bias) const;
+};
+
 #endif 

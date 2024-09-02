@@ -15,6 +15,16 @@
 #define EPS 1e-12 // machine epsilon IEEE 64-bit
 #define POW2(x) (x*x)
 
+#ifdef DEBUG
+static bool check_lat(double lat_deg)
+{
+  return lat_deg >= -90.0 && lat_deg <= 90.0;
+}
+static bool check_lon(double lon_deg)
+{
+  return lon_deg >= -180.0 && lon_deg <= 180.0;
+}
+#endif 
 // ---------------------------------------------------------------------------
 //  Analogous to the hypot() function introduced in std=c99
 //   sqrt(x*x + y*y + z*z)
@@ -36,21 +46,31 @@ real hypot3(real x, real y, real z)
   return sqrt(x*x + y*y + real(1)) * z;
 }
 
-Spheroid::Spheroid(ELLPS ellps)
+Spheroid::Spheroid(SPHEROID ellps)
 {
   set(ellps);
 }
 
-void Spheroid::set(ELLPS ellps)
+void Spheroid::set(SPHEROID ellps)
 {
   switch(ellps)
   {
-  case ELLPS_WGS84:
-    set(6378137,1.0/298.257223563); break;
-  case ELLPS_GRS80:
-    set(6378137,1.0/298.257222100882711); break;
-  default:
-    set(6378137,1.0/298.257223563); break;
+  case SPHEROID_WGS66:
+    set(6378145.0,1.0/298.25); break;
+  case SPHEROID_WGS72:
+    set(6378135.0,1.0/298.26); break;
+  case SPHEROID_WGS84:
+    set(6378137.0,1.0/298.257223563); break;
+  case SPHEROID_GRS67:
+    set(6378160.0,1.0/298.247167427); break;
+  case SPHEROID_GRS80:
+    set(6378137.0,1.0/298.257222100882711); break;
+  case SPHEROID_PZ90:
+    set(6378136.0,1.0/298.257839303); break;
+  case SPHEROID_SAD69:
+    set(6378160.0,1.0/298.25); break;
+  default: // to WGS84
+    set(6378137.0,1.0/298.257223563); break;
   }
 }
   
@@ -143,9 +163,9 @@ double Spheroid::geodesic(
   double lat2deg, double lon2deg) const
 {
 #ifdef DEBUG
-  if(lat1deg<-90.0||lat2deg<-90.0||lat1deg>90.0||lat2deg>90.0)
+  if(!check_lat(lat1deg)||!check_lat(lat2deg))
     warn("latitude out of range [-90; 90]");
-  if(lon1deg<-180.0||lon2deg<-180.0||lon1deg>180.0||lon2deg>180.0)
+  if(!check_lon(lon1deg)||!check_lon(lon2deg))
     warn("longitude out of range [-180; 180]");
 #endif
 
@@ -239,9 +259,9 @@ void Spheroid::geo2ecf(const double *geo, double *xyz) const
 #ifdef DEBUG
   if(!geo||!xyz)
     error("null pointers");
-  if(geo[0]<-90.0||geo[0]>90.0)
+  if(!check_lat(geo[0]))
     warn("latitude out of range [-90; 90]");
-  if(geo[1]<-180.0||geo[1]>180.0)
+  if(!check_lon(geo[1]))
     warn("longitude out of range [-180; 180]");
 #endif
   double phi=geo[0]*D2R;
@@ -322,9 +342,9 @@ void Spheroid::geo2utm(const double *geo, double *utm, int *zone, char *h) const
 #ifdef DEBUG
   if(!geo||!utm)
     error("null pointers");
-  if(geo[0]<-90.0||geo[0]>90.0)
+  if(!check_lat(geo[0]))
     warn("latitude out of range [-90; 90]");
-  if(geo[1]<-180.0||geo[1]>180.0)
+  if(!check_lon(geo[1]))
     warn("longitude out of range [-180; 180]");
 #endif
 
@@ -440,7 +460,7 @@ double Spheroid::cnflat(double phi) const
 void Spheroid::utmzone(double lon_deg, int *zone, double *cm_deg)
 {
 #ifdef DEBUG
-  if(lon_deg<-180.0||lon_deg>180.0)
+  if(!check_lon(lon_deg))
     warn("longitude out of range [-180; 180]");
 #endif
 
