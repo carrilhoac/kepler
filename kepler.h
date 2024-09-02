@@ -1,6 +1,6 @@
 
 // ---------------------------------------------------------------------------
-//  Copyright (C) 2009-2024, All rights reserved. Andre Caceres Carrilho
+//  Copyright (c) 2009-2024, Andre Caceres Carrilho. All rights reserved. 
 //
 //   kepler.h --Main library header
 // ---------------------------------------------------------------------------

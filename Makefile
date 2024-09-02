@@ -2,8 +2,8 @@
 CC=g++
 CFLAGS= -Wall -O3 -pedantic -std=c++20 -DDEBUG
 
-OBJS_LIB = ellps.o linalg.o time.o
-OBJS_TEST= test_ellps.o test_linalg.o test_time.o
+OBJS_LIB = spheroid.o matrix.o timesys.o
+OBJS_TEST= test_spheroid.o test_matrix.o test_timesys.o
 
 all: libkepler.a
 
@@ -16,23 +16,23 @@ libkepler.a: kepler.h ${OBJS_LIB}
 # ---------------------------------------------------------------------------
 # OBJ files
 # ---------------------------------------------------------------------------
-ellps.o: kepler.h ellps.cc
-	${CC} ${CFLAGS} -c ellps.cc
-linalg.o: kepler.h linalg.cc
-	${CC} ${CFLAGS} -c linalg.cc
-time.o: kepler.h time.cc
-	${CC} ${CFLAGS} -c time.cc
+spheroid.o: kepler.h spheroid.cc
+	${CC} ${CFLAGS} -c spheroid.cc
+matrix.o: kepler.h matrix.cc
+	${CC} ${CFLAGS} -c matrix.cc
+timesys.o: kepler.h timesys.cc
+	${CC} ${CFLAGS} -c timesys.cc
 
 
 # ---------------------------------------------------------------------------
 # TESTS
 # ---------------------------------------------------------------------------
-test_ellps.o: test_ellps.cc libkepler.a
-	${CC} ${CFLAGS} -c test_ellps.cc
-test_linalg.o: test_linalg.cc libkepler.a
-	${CC} ${CFLAGS} -c test_linalg.cc
-test_time.o: test_time.cc libkepler.a
-	${CC} ${CFLAGS} -c test_time.cc
+test_spheroid.o: test_spheroid.cc libkepler.a
+	${CC} ${CFLAGS} -c test_spheroid.cc
+test_matrix.o: test_matrix.cc libkepler.a
+	${CC} ${CFLAGS} -c test_matrix.cc
+test_timesys.o: test_timesys.cc libkepler.a
+	${CC} ${CFLAGS} -c test_timesys.cc
 tests: kepler.h libkepler.a test.h test.cc ${OBJS_TEST}
 	${CC} ${CFLAGS} -o tests test.cc ${OBJS_TEST} ./libkepler.a
 test: tests

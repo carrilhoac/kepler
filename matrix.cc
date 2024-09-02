@@ -2,7 +2,7 @@
 // ---------------------------------------------------------------------------
 //  Copyright (C) 2009-2024, All rights reserved. Andre Caceres Carrilho
 //
-//   linalg.cc --Mat class, Linear Algebra and Matrix computations
+//   matrix.cc --Mat class, Linear Algebra and Matrix computations
 // ---------------------------------------------------------------------------
 
 #include "kepler.h"

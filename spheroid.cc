@@ -2,12 +2,11 @@
 // ---------------------------------------------------------------------------
 //  Copyright (C) 2009-2024, All rights reserved. Andre Caceres Carrilho
 //
-//   ellps.cc --Spheroid class, Geodetic computations & UTM projection
+//   spheroid.cc --Spheroid class, Geodetic computations & UTM projection
 //   The term 'Spheroid' is what Open Geospatial Consortium (OGC) uses.
 // ---------------------------------------------------------------------------
 
 #include "kepler.h"
-#include <cmath>
 
 #define PI  3.1415926535897932384626
 #define PI2 1.5707963267948966192313

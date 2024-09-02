@@ -1,0 +1,4 @@
+
+*.h text  eol=lf
+*.cc text  eol=lf
+Makefile text eol=lf
