@@ -38,11 +38,11 @@ static int64_t cal2unx(const int *cal)
 static const int r_offs[6] = {0,5,8,11,14,17};
 
 // This function assumes standard locale: setlocale(LC_ALL,"C"); 
-extern epoch_t rnx2unx(const char *rnx)
+extern Epoch rnx2unx(const char *rnx)
 {  
   int i,cal[6];
   double sec;
-  epoch_t r;
+  Epoch r;
 
   for(i=0;i<6;i++)
     cal[i]=strtol(rnx+r_offs[i],0,10);
@@ -53,7 +53,7 @@ extern epoch_t rnx2unx(const char *rnx)
   return r;
 }
 
-extern double unx2gps(const epoch_t& utc_ts, int *gps_week)
+extern double unx2gps(const Epoch& utc_ts, int *gps_week)
 {
   int w;
   double s;
@@ -69,10 +69,10 @@ extern double unx2gps(const epoch_t& utc_ts, int *gps_week)
   return s;
 }
 
-extern epoch_t gps2unx(int gps_week, double gps_tow)
+extern Epoch gps2unx(int gps_week, double gps_tow)
 {
   int64_t t0;
-  epoch_t r;
+  Epoch r;
 
   t0=cal2unx(gps0);
   r.t_sec=t0+gps_week*SEC_WEEK+(int64_t)(gps_tow);
@@ -80,7 +80,7 @@ extern epoch_t gps2unx(int gps_week, double gps_tow)
   return r;
 }
 
-extern double timesub(const epoch_t& a, const epoch_t& b)
+extern double timesub(const Epoch& a, const Epoch& b)
 {
   return (double)(a.t_sec-b.t_sec)+(a.t_frac-b.t_frac);
 }

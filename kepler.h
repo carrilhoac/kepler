@@ -20,39 +20,39 @@ void warn_(const char *from, const char *msg);
 #define error(x) error_(__PRETTY_FUNCTION__, x)
 #define warn(x) warn_(__PRETTY_FUNCTION__, x)
 
-// ---------------------------------------------------------------------------
+//////////////////////////////////////////////////////////////////////
 //  Time point (needs refactoring)
-// ---------------------------------------------------------------------------
-struct epoch_t{
+
+struct Epoch{
   int64_t t_sec;
   double t_frac;
 };
 
-epoch_t rnx2unx(const char *rnx);
-epoch_t gps2unx(int gps_week, double gps_tow);
-double unx2gps(const epoch_t& utc_ts, int *gps_week);
-double timesub(const epoch_t& a, const epoch_t& b);
+Epoch rnx2unx(const char *rnx);
+Epoch gps2unx(int gps_week, double gps_tow);
+double unx2gps(const Epoch& utc_ts, int *gps_week);
+double timesub(const Epoch& a, const Epoch& b);
 
-// ---------------------------------------------------------------------------
+//////////////////////////////////////////////////////////////////////
 //  Spheroid 
-// ---------------------------------------------------------------------------
-enum SPHEROID{
-  SPHEROID_WGS66,
-  SPHEROID_WGS72,
-  SPHEROID_WGS84,
-  SPHEROID_GRS67,
-  SPHEROID_GRS80,
-  SPHEROID_PZ90 ,
-  SPHEROID_SAD69
-};
 
 class Spheroid{
 private:
-  double a,b,f,e,e2,pr;
+  double a,b,f,e,e2,rr;
   double alpha[8],beta[8];  
 public:
-  Spheroid(SPHEROID ellps=SPHEROID_WGS84);
-  void set(SPHEROID ellps);
+  enum eSPHEROID{
+    WGS66,
+    WGS72,
+    WGS84,
+    GRS67,
+    GRS80,
+    PZ90 ,
+    SAD69
+  };
+public:
+  Spheroid(eSPHEROID ellps=WGS84);
+  void set(eSPHEROID ellps);
   void set(double a_, double f_);  
   double geodesic(double lat1deg, double lon1deg, 
                   double lat2deg, double lon2deg) const;
@@ -69,9 +69,9 @@ private:
 
 #define MATRIX_EPS 1e-11
 
-// ---------------------------------------------------------------------------
+//////////////////////////////////////////////////////////////////////
 //  Matrix (row-major layout)
-// ---------------------------------------------------------------------------
+
 class Mat{
 private:
   int m,n;
@@ -112,9 +112,9 @@ public:
   friend std::ostream& operator<<(std::ostream& os, const Mat& b);
 };
 
-// ---------------------------------------------------------------------------
+//////////////////////////////////////////////////////////////////////
 //  Broadcast ephemeris
-// ---------------------------------------------------------------------------
+
 struct Nav{
 public:
   char prn[4];
@@ -125,7 +125,7 @@ public:
   int week;           // GPS/QZS: gps week, GAL: galileo week 
   int code;           // GPS/QZS: code on L2, GAL/CMP: data sources 
   int flag;           // GPS/QZS: L2 P data flag, CMP: nav type 
-  epoch_t toe,toc,ttr;// Toe,Toc,T_trans 
+  Epoch toe,toc,ttr;// Toe,Toc,T_trans 
                       // SV orbit parameters 
   double A,e,i0,OMG0,omg,M0,deln,OMGd,idot;
   double crc,crs,cuc,cus,cic,cis;
@@ -140,7 +140,7 @@ public:
 public:
   Nav(const char *rnx);
   void rnx2nav(const char *rnx);
-  void nav2ecf(const epoch_t& t, double *xyz, double *clk_bias) const;
+  void nav2ecf(const Epoch& t, double *xyz, double *clk_bias) const;
 };
 
 #endif 

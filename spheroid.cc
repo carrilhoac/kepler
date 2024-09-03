@@ -25,6 +25,7 @@ static bool check_lon(double lon_deg)
   return lon_deg >= -180.0 && lon_deg <= 180.0;
 }
 #endif 
+
 // ---------------------------------------------------------------------------
 //  Analogous to the hypot() function introduced in std=c99
 //   sqrt(x*x + y*y + z*z)
@@ -46,28 +47,28 @@ real hypot3(real x, real y, real z)
   return sqrt(x*x + y*y + real(1)) * z;
 }
 
-Spheroid::Spheroid(SPHEROID ellps)
+Spheroid::Spheroid(eSPHEROID ellps)
 {
   set(ellps);
 }
 
-void Spheroid::set(SPHEROID ellps)
+void Spheroid::set(eSPHEROID ellps)
 {
   switch(ellps)
   {
-  case SPHEROID_WGS66:
+  case WGS66:
     set(6378145.0,1.0/298.25); break;
-  case SPHEROID_WGS72:
+  case WGS72:
     set(6378135.0,1.0/298.26); break;
-  case SPHEROID_WGS84:
+  case WGS84:
     set(6378137.0,1.0/298.257223563); break;
-  case SPHEROID_GRS67:
+  case GRS67:
     set(6378160.0,1.0/298.247167427); break;
-  case SPHEROID_GRS80:
+  case GRS80:
     set(6378137.0,1.0/298.257222100882711); break;
-  case SPHEROID_PZ90:
+  case PZ90:
     set(6378136.0,1.0/298.257839303); break;
-  case SPHEROID_SAD69:
+  case SAD69:
     set(6378160.0,1.0/298.25); break;
   default: // to WGS84
     set(6378137.0,1.0/298.257223563); break;
@@ -104,7 +105,7 @@ void Spheroid::set(double a_, double f_)
   n8=POW2(n4);
   
   // Equation (41) (rectifying radius)
-  pr=a/(1.0+n1)*(1.0+0.25*n2+0.015625*n4+0.00390625*n6+0.00006103515625*n8);
+  rr=a/(1.0+n1)*(1.0+0.25*n2+0.015625*n4+0.00390625*n6+0.00006103515625*n8);
   
   // Coefficients for Karney-Kruger UTM equations: 
   // Deakin, R.E.; Hunter, M.N.; Karney, C.F.F. A fresh look at the UTM projection.
@@ -360,8 +361,8 @@ void Spheroid::geo2utm(const double *geo, double *utm, int *zone, char *h) const
     x+=alpha[i]*cos(w*u)*sinh(w*v);
     y+=alpha[i]*sin(w*u)*cosh(w*v);
   }
-  x=0.9996*pr*(v+x);
-  y=0.9996*pr*(u+y);
+  x=0.9996*rr*(v+x);
+  y=0.9996*rr*(u+y);
   utm[0]=x+5E+05;
   utm[1]=geo[0]>0.0?y:y+1E+07;
   if(h)
@@ -399,8 +400,8 @@ void Spheroid::utm2geo(const double *utm, double *geo, int zone, char h) const
   double lmb0;
   x=utm[0]-5E+05;
   y=(h=='N')||(h=='n')?utm[1]:utm[1]-1E+07;
-  x*=1.0/(pr*0.9996);
-  y*=1.0/(pr*0.9996);
+  x*=1.0/(rr*0.9996);
+  y*=1.0/(rr*0.9996);
   for(i=0,u=0,v=0,w=2.0; i<8; i++,w+=2.0){
     v+=beta[i]*cos(w*y)*sinh(w*x);
     u+=beta[i]*sin(w*y)*cosh(w*x);

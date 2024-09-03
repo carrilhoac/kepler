@@ -23,7 +23,7 @@ static int test_geodesic()
   if(!ref.is_open())
     fail("unable to open data file \'geodesic_distances.txt\'");
   
-  Spheroid wgs84(SPHEROID_WGS84);
+  Spheroid wgs84(Spheroid::WGS84);
   
   while(ref.good()){
     std::getline(ref, line);
@@ -68,7 +68,7 @@ static int test_geo2ecf()
   double geo[3]={-22.119904740399434, -51.408534025148890, 431.049};
   double xyz[3]={0};
   
-  Spheroid grs80(SPHEROID_GRS80);
+  Spheroid grs80(Spheroid::GRS80);
   grs80.geo2ecf(geo, xyz);
   
   xyz[0]-=ref[0];
@@ -89,7 +89,7 @@ static int test_ecf2geo()
   double geo[3]={0};
   double xyz[3]={3687624.3672, -4620818.6825, -2386880.3804};
   
-  Spheroid grs80(SPHEROID_GRS80);
+  Spheroid grs80(Spheroid::GRS80);
   grs80.ecf2geo(xyz, geo);
   
   geo[0]-=ref[0];
@@ -112,7 +112,7 @@ static int test_geo2utm()
   int zone;
   char h;
   
-  Spheroid grs80(SPHEROID_GRS80);
+  Spheroid grs80(Spheroid::GRS80);
   grs80.geo2utm(geo, utm,&zone,&h);
   
   if(zone!=22||h!='S')
@@ -134,7 +134,7 @@ static int test_utm2geo()
   double geo[2]={0};
   double utm[2]={457866.057,7553844.609};
   
-  Spheroid grs80(SPHEROID_GRS80);
+  Spheroid grs80(Spheroid::GRS80);
   grs80.utm2geo(utm, geo, 22,'S');
   
   //printf("%.9f %.9f\n",geo[0],geo[1]);
