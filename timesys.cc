@@ -148,6 +148,12 @@ std::ostream& operator<<(std::ostream& os, const Time& t)
   return os;
 }
 
+// ensures |t_frac| < 1.0 
 void Time::normalize()
 {
+  if(fabs(t_frac)<1.0)
+    return;
+  double tt=trunc(t_frac);
+  t_sec+=tt;
+  t_frac-=tt;
 }

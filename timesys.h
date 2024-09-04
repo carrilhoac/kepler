@@ -12,7 +12,7 @@ template<typename FT>
 Time& Time::operator=(FT t)
 {
   double td=double(t);
-  double tf=floor(td);
+  double tf=floor(td); // or trunc?
   t_sec=int64_t(tf);
   t_frac=td-tf;
   return *this;
