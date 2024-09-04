@@ -18,10 +18,10 @@ static int test_geodesic()
   std::ifstream ref;
   std::string line;
   
-  ref.open("data/geodesic_distances.txt");
+  ref.open("data/spheroid_geodesic.txt");
   
   if(!ref.is_open())
-    fail("unable to open data file \'geodesic_distances.txt\'");
+    fail("unable to open data file \'spheroid_geodesic.txt\'");
   
   Spheroid wgs84(Spheroid::WGS84);
   

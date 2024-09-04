@@ -7,6 +7,7 @@
 
 #include "kepler.h"
 
+#ifdef DEBUG
 void error_(const char *from, const char *msg)
 {
   std::cerr<<"[ERROR] "<<from<<": "<<msg<<std::endl;
@@ -17,6 +18,7 @@ void warn_(const char *from, const char *msg)
 {
   std::cerr<<"[WARNING] "<<from<<": "<<msg<<std::endl;
 }
+#endif 
 
 // ---------------------------------------------------------------------------
 // ---------------------------------------------------------------------------

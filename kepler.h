@@ -15,23 +15,48 @@
 #include <cstdint>
 #include <cstdlib>
 
-void error_(const char *from, const char *msg);
-void warn_(const char *from, const char *msg);
-#define error(x) error_(__PRETTY_FUNCTION__, x)
-#define warn(x) warn_(__PRETTY_FUNCTION__, x)
+#ifdef DEBUG
+  void error_(const char *from, const char *msg);
+  #define error(x) error_(__PRETTY_FUNCTION__, x) // & exit 1  
+  void warn_(const char *from, const char *msg);
+  #define warn(x) warn_(__PRETTY_FUNCTION__, x)
+#endif 
 
 //////////////////////////////////////////////////////////////////////
-//  Time point (needs refactoring)
+//  Time point
 
-struct Epoch{
+class Time{
+public:
   int64_t t_sec;
   double t_frac;
+public:
+  Time();
+  Time(const Time& t);
+  template<typename FT> Time(FT t);
+  Time& from_cal(const int *cal); // y m d h m s
+  Time& from_rnx(const char *rnx); // RINEX epoch string
+  Time& from_gps(int gpsweek, double gpstow);
+  int gps_week() const;
+  double gps_tow() const;
+  double to_double() const;
+  Time& operator=(const Time& t);
+  Time& operator+=(const Time& t);
+  Time& operator-=(const Time& t);
+  Time operator+(const Time& t) const;
+  Time operator-(const Time& t) const;
+  template<typename FT> Time& operator=(FT t);
+  template<typename FT> Time& operator+=(FT t);
+  template<typename FT> Time& operator-=(FT t);
+  template<typename FT> Time operator+(FT t) const;
+  template<typename FT> Time operator-(FT t) const;
+  friend std::ostream& operator<<(std::ostream& os, const Time& t);
+  static int civ2day(int y, int m, int d);
+  static int64_t cal2unx(const int *cal);
+private:
+  void normalize();
 };
 
-Epoch rnx2unx(const char *rnx);
-Epoch gps2unx(int gps_week, double gps_tow);
-double unx2gps(const Epoch& utc_ts, int *gps_week);
-double timesub(const Epoch& a, const Epoch& b);
+#include "timesys.h" // implementation for templated Time methods 
 
 //////////////////////////////////////////////////////////////////////
 //  Spheroid 
@@ -62,7 +87,7 @@ public:
   void geo2utm(const double *geo, double *utm, int *zone, char *h) const;
   static double utmscale(double lon_deg);
 private:
-  static void utmzone(double lon_deg, int *zone, double *cm_deg);
+  static void utmzone(double lon_deg, int *zone, double *cm_deg); // or public?
   double cnflat(double phi) const;
 };
 
@@ -88,6 +113,8 @@ public:
   double tr() const;
   int rows() const{ return m; }
   int cols() const{ return n; }
+  //Mat row(int i) const;
+  //Mat col(int j) const;
         double* data()      { return &mat[0]; }
   const double* data() const{ return &mat[0]; }
         double& operator()(int i, int j);
@@ -125,7 +152,7 @@ public:
   int week;           // GPS/QZS: gps week, GAL: galileo week 
   int code;           // GPS/QZS: code on L2, GAL/CMP: data sources 
   int flag;           // GPS/QZS: L2 P data flag, CMP: nav type 
-  Epoch toe,toc,ttr;// Toe,Toc,T_trans 
+  Time toe,toc,ttr;// Toe,Toc,T_trans 
                       // SV orbit parameters 
   double A,e,i0,OMG0,omg,M0,deln,OMGd,idot;
   double crc,crs,cuc,cus,cic,cis;
@@ -140,7 +167,7 @@ public:
 public:
   Nav(const char *rnx);
   void rnx2nav(const char *rnx);
-  void nav2ecf(const Epoch& t, double *xyz, double *clk_bias) const;
+  void nav2ecf(const Time& t, double *xyz, double *clk_bias) const;
 };
 
 #endif 
