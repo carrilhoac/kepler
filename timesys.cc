@@ -79,6 +79,22 @@ double Time::to_double() const
 {
   return double(t_sec)+t_frac;
 }
+bool Time::operator>(const Time& t) const
+{
+  return to_double()>t.to_double();
+}
+bool Time::operator<(const Time& t) const
+{
+  return to_double()<t.to_double();
+}
+bool Time::operator>=(const Time& t) const
+{
+  return to_double()>=t.to_double();
+}
+bool Time::operator<=(const Time& t) const
+{
+  return to_double()<=t.to_double();
+}
 
 Time& Time::operator=(const Time& t)
 {

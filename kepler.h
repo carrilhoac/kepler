@@ -39,6 +39,14 @@ public:
   int gps_week() const;
   double gps_tow() const;
   double to_double() const;
+  bool operator>(const Time& t) const; // for sorting
+  bool operator<(const Time& t) const;
+  bool operator>=(const Time& t) const;
+  bool operator<=(const Time& t) const;
+  template<typename FT> bool operator>(FT t) const;
+  template<typename FT> bool operator<(FT t) const;
+  template<typename FT> bool operator>=(FT t) const;
+  template<typename FT> bool operator<=(FT t) const;
   Time& operator=(const Time& t);
   Time& operator+=(const Time& t);
   Time& operator-=(const Time& t);

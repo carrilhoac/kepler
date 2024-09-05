@@ -9,6 +9,30 @@ Time::Time(FT t)
 }
 
 template<typename FT> 
+bool Time::operator>(FT t) const
+{
+  return to_double()>((double)t);
+}
+
+template<typename FT> 
+bool Time::operator<(FT t) const
+{
+  return to_double()<((double)t);
+}
+
+template<typename FT> 
+bool Time::operator>=(FT t) const
+{
+  return to_double()>=((double)t);
+}
+
+template<typename FT> 
+bool Time::operator<=(FT t) const
+{
+  return to_double()<=((double)t);
+}
+
+template<typename FT> 
 Time& Time::operator=(FT t)
 {
   double td=double(t);
