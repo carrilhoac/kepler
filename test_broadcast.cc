@@ -12,8 +12,8 @@ void test_broadcast()
   // missing leading 0 on some values (starts at the dot)
   // missing some elements (which are zero, btw)
   // mixed exponents (e,E,d,D), mixed EOL (Win32:'\r\n'; Linux:'\n'; and Mac:'\r')
-  char rinex[]= 
-"G 1 2024  7 15 22       2.417615614831D-04-7.162270776462d-12\r"
+  char rinex[]= // "G1","G2"..."G9" would be valid? give wawrning perhaps?
+"G 1 2024  7 15 22       2.417615614831D-04-7.162270776462d-12\r" 
 "      .810000000000e+02 7.109375000000D+01 5.544516665660d-09-2.734409949984E+00\n"
 "     3.712251782417e-06  .133793031564D-01 9.505078196526d-06 5.153784959793E+03\r\n"
 "      .165600000000e+06 8.754432201385D-08-9.331363423370d-01-7.450580596924E-08 \t \n"

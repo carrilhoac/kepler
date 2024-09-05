@@ -94,9 +94,9 @@ void Nav::rnx2nav(const char *rnx)
 
   // parsing lines
   lines[0]=rnx;
-  for(i=1,j=1;i<8;j++){ // we expect eight lines in the nav record
+  for(i=1,j=1;i<8;j++){ 
 #ifdef DEBUG
-    if(!rnx[j])
+    if(!rnx[j]) // we expect eight lines in the nav record
       error("incomplete GPS Nav record");
 #endif 
     if(rnx[j]=='\n' // handles both Win32 & Linux
@@ -105,40 +105,35 @@ void Nav::rnx2nav(const char *rnx)
     }
   }
 
-  // satellite PRN 
-  // some RINEX files might omit the leading zero 
-  prn[0]=lines[0][0];
+  // some RINEX files might omit the leading zero on the
+  // satellite PRN, we standardize it here for later checks
+  prn[0]=lines[0][0]; 
   prn[1]=lines[0][1]==' '?'0':lines[0][1]; 
   prn[2]=lines[0][2];
   prn[3]=0;
-
+  
 #ifdef DEBUG
   check_prn(prn);
 #endif
 
   // reading parameters
   for(k=0,i=0;i<8;i++){
-    n=strlen(lines[i]);
-    
+    n=strlen(lines[i]);    
     for(j=0;j<4;j++){
-      w=4+19*j;
-      
+      w=4+19*j;      
+      if(w+19>n){
       // some entries might not have the entire line populated
       // thus, we need to check the line length before reading 
-      if(w+19>n){
         k++; // skip parameter
         continue; 
       }      
-      strncpy(buf,&lines[i][w],19);
-      
-      // first parameter is the time of clock (toc)
-      if(!i&&!j){
+      strncpy(buf,&lines[i][w],19);      
+      if(!i&&!j){ // first parameter is the time of clock (toc)
         toc.from_rnx(buf);
-        continue;
-      }
-      
-      fixflt(buf);
-      par[k++]=strtod(buf,0);
+      } else {
+        fixflt(buf);
+        par[k++]=strtod(buf,0);       
+      }      
     }
   }
 
