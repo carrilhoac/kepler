@@ -1,19 +1,45 @@
 
 #include "test.h"
 
+void test_from_rnx(const char *epoch, int gps_week, 
+                   double gps_tow, double unix_timestamp)
+{
+  Time t;
+  t.from_rnx(epoch);
+  
+  if(t.gps_week()!=gps_week)
+    fail("different GPS Week");
+  if(fabs(t.gps_tow()-gps_tow)>0.001)
+    fail("different GPS Time of Week");
+  if(fabs(t.to_double()-unix_timestamp)>0.001)
+    fail("different Unix timestamp");
+}
+
+void test_from_rnx_unix(const char *epoch, double unix_timestamp)
+{
+  Time t;
+  t.from_rnx(epoch);
+  
+  if(fabs(t.to_double()-unix_timestamp)>0.001)
+    fail("different Unix timestamp");
+}
+
 void test_time()
 {  
   { // from_rnx()
     Time rnx; // no leap seconds considered
     
-    rnx.from_rnx("1980 01 06 00 00 00"); // GPS epoch
-    if(fabs(rnx.to_double()-315964800.0)>0.001)
-      fail("different timestamp (315964800 s)");
+    // TODO: read from text file 
+    test_from_rnx_unix("1969 12 31 23 59 59",-1.0); // 1s before Unix epoch
+    test_from_rnx_unix("1970 01 01 00 00 00", 0.0); // Unix epoch
+    test_from_rnx_unix("1980 01 06 00 00 00", 315964800.0);// GPS epoch
     
-    rnx.from_rnx("1970 01 01 00 00 00"); // Unix epoch
-    if(fabs(rnx.to_double())>0.001)
-      fail("different timestamp (0 s)");
-      
+    // this first one is the DooM release date
+    test_from_rnx("1993 12 10 00 00 00",  726, 432000.0,  755481600.0); 
+    test_from_rnx("2024 07 15 22 00 00", 2323, 165600.0, 1721080800.0);
+    test_from_rnx("2030 08 08 14 19 57", 2639, 397197.0, 1912429197.0);
+    
+    // TODO: the same for these next two
     rnx.from_rnx("1999 01 01 00 00 00"); 
     if(rnx.gps_week()!=990)
       fail("different GPS Week (990)");
@@ -25,31 +51,8 @@ void test_time()
       fail("different GPS Week (1042)");
     if(fabs(rnx.gps_tow()-518400.0)>0.001)
       fail("different GPS Time of Week (518400 s)");
-      
-    rnx.from_rnx("1993 12 10 00 00 00"); // DooM release date
-    if(rnx.gps_week()!=726)
-      fail("different GPS Week (726)");
-    if(fabs(rnx.gps_tow()-432000.0)>0.001)
-      fail("different GPS Time of Week (432000 s)");
-    if(fabs(rnx.to_double()-755481600.0)>0.001)
-      fail("different timestamp (755481600 s)");
     
-    rnx.from_rnx("2024 07 15 22 00 00");
-    if(rnx.gps_week()!=2323)
-      fail("different GPS Week (2323)");
-    if(fabs(rnx.gps_tow()-165600.0)>0.001)
-      fail("different GPS Time of Week (165600 s)");
-    if(fabs(rnx.to_double()-1721080800.0)>0.001)
-      fail("different timestamp (1721080800 s)");
     
-    rnx.from_rnx("2030 08 08 14 19 57"); 
-    if(rnx.gps_week()!=2639)
-      fail("different GPS Week (2639)");
-    if(fabs(rnx.gps_tow()-397197.0)>0.001)
-      fail("different GPS Time of Week (397197 s)");
-    if(fabs(rnx.to_double()-1912429197.0)>0.001)
-      fail("different timestamp (1912429197 s)");
-  
     //std::cout << std::fixed;
     //std::cout << rnx.to_double() << std::endl;
   }
