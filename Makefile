@@ -2,7 +2,7 @@
 CC=g++
 CFLAGS= -Wall -O3 -pedantic -std=c++20 -DDEBUG
 
-OBJS_LIB = spheroid.o matrix.o timesys.o
+OBJS_LIB = spheroid.o matrix.o timesys.o broadcast.o
 OBJS_TEST= test_spheroid.o test_matrix.o test_timesys.o
 
 all: libkepler.a
@@ -22,7 +22,8 @@ matrix.o: kepler.h matrix.cc
 	${CC} ${CFLAGS} -c matrix.cc
 timesys.o: kepler.h timesys.cc
 	${CC} ${CFLAGS} -c timesys.cc
-
+broadcast.o: kepler.h broadcast.cc 
+	${CC} ${CFLAGS} -c broadcast.cc
 
 # ---------------------------------------------------------------------------
 # TESTS

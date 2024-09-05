@@ -152,7 +152,7 @@ public:
   int week;           // GPS/QZS: gps week, GAL: galileo week 
   int code;           // GPS/QZS: code on L2, GAL/CMP: data sources 
   int flag;           // GPS/QZS: L2 P data flag, CMP: nav type 
-  Time toe,toc,ttr;// Toe,Toc,T_trans 
+  Time toe,toc,ttr;   // Toe,Toc,T_trans 
                       // SV orbit parameters 
   double A,e,i0,OMG0,omg,M0,deln,OMGd,idot;
   double crc,crs,cuc,cus,cic,cis;
@@ -167,7 +167,7 @@ public:
 public:
   Nav(const char *rnx);
   void rnx2nav(const char *rnx);
-  void nav2ecf(const Time& t, double *xyz, double *clk_bias) const;
+  void nav2ecf(const Time& t, double *xyz, double *clock_bias) const;
 };
 
 #endif 
