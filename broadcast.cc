@@ -65,14 +65,16 @@ void Nav::rnx2nav(const char *rnx)
 {
   int i,j,k,n,w;
   const char *lines[8];
-  char buf[20];
-  double par[32];
+  char buf[20]={0};
+  double par[32]={0};
 
   // parsing lines
   lines[0]=rnx;
   for(i=1,j=1;i<8;j++){
-    if(rnx[j]=='\n')
+    if(rnx[j]=='\n' // handles both Win32 & Linux
+    ||(rnx[j]=='\r'&&rnx[j+1]!='\n')){// for MacOS
       lines[i++]=rnx+(++j);
+    }
   }
 
   // sat prn 
@@ -83,12 +85,10 @@ void Nav::rnx2nav(const char *rnx)
   prn[3]=0;
 
   // time of clock (toc)
-  memset(buf,0,20);
   strncpy(buf,lines[0]+4,19);
   toc.from_rnx(buf);
 
   // reading parameters
-  memset(par,0,sizeof(par));
   for(k=0,i=0;i<8;i++){
     n=strlen(lines[i]);
     for(j=0;j<4;j++){
@@ -102,6 +102,8 @@ void Nav::rnx2nav(const char *rnx)
       strncpy(buf,&lines[i][w],19);
       fixflt(buf);
       par[k++]=strtod(buf,0);
+      
+    //  std::cout << par[k-1] << std::endl;
     }
   }
 
