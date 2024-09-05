@@ -1,6 +1,6 @@
 
 #ifndef KEPLER_test_h
-#define KEPLER_test_h 1
+#define KEPLER_test_h
 
 #include "kepler.h"
 
@@ -10,5 +10,6 @@ void fail_(const char *from, const char *msg);
 void test_ellps();
 void test_linalg();
 void test_time();
+void test_broadcast();
 
 #endif 

@@ -3,7 +3,7 @@ CC=g++
 CFLAGS= -Wall -O3 -pedantic -std=c++20 -DDEBUG
 
 OBJS_LIB = spheroid.o matrix.o timesys.o broadcast.o
-OBJS_TEST= test_spheroid.o test_matrix.o test_timesys.o
+OBJS_TEST= test_spheroid.o test_matrix.o test_timesys.o test_broadcast.o
 
 all: libkepler.a
 
@@ -34,6 +34,8 @@ test_matrix.o: test_matrix.cc libkepler.a
 	${CC} ${CFLAGS} -c test_matrix.cc
 test_timesys.o: test_timesys.cc libkepler.a
 	${CC} ${CFLAGS} -c test_timesys.cc
+test_broadcast.o: test_broadcast.cc libkepler.a 
+	${CC} ${CFLAGS} -c test_broadcast.cc
 tests: kepler.h libkepler.a test.h test.cc ${OBJS_TEST}
 	${CC} ${CFLAGS} -o tests test.cc ${OBJS_TEST} ./libkepler.a
 test: tests

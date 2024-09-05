@@ -33,12 +33,14 @@ static int uraindex(double value)
   return 0;
 }
 
-static void fixflt(char *str)
+// FORTRAN to C double exponent 
+// We need to replace the exponent character from 'D' to 'E'  
+// due to legacy FORTRAN compatibility on the RINEX format 
+// specification (for writing double precision floating point) 
+static void fixflt(char *s)
 {
-  do {
-    if(*str=='d'||*str=='D')
-      *str='e';
-  } while(*str++);
+  for(;*s;s++)
+    *s=(*s=='D'||*s=='d')?'E':*s;
 }
 
 // adjust time considering week handover 
@@ -51,9 +53,17 @@ static void adjweek(Time& t, const Time& t0)
     t.t_sec-=604800;
 }
 
+Nav::Nav()
+{}
+
+Nav::Nav(const char *rnx)
+{
+  rnx2nav(rnx);
+}
+
 void Nav::rnx2nav(const char *rnx)
 {
-  int i,j,k;
+  int i,j,k,n,w;
   const char *lines[8];
   char buf[20];
   double par[32];
@@ -66,7 +76,10 @@ void Nav::rnx2nav(const char *rnx)
   }
 
   // sat prn 
-  strncpy(prn,lines[0],3);
+  // some RINEX files omit the leading zero 
+  prn[0]=lines[0][0];
+  prn[1]=lines[0][1]==' '?'0':lines[0][1]; 
+  prn[2]=lines[0][2];
   prn[3]=0;
 
   // time of clock (toc)
@@ -75,11 +88,18 @@ void Nav::rnx2nav(const char *rnx)
   toc.from_rnx(buf);
 
   // reading parameters
+  memset(par,0,sizeof(par));
   for(k=0,i=0;i<8;i++){
+    n=strlen(lines[i]);
     for(j=0;j<4;j++){
       if(!i&&!j)
         continue;
-      strncpy(buf,&lines[i][4+19*j],19);
+      // some files might not have the entire last line populated
+      // thus, we need to check strlen(lines[i]) before reading 
+      w=4+19*j;
+      if(w+19>n)
+        continue;      
+      strncpy(buf,&lines[i][w],19);
       fixflt(buf);
       par[k++]=strtod(buf,0);
     }

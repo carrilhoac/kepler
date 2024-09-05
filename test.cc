@@ -18,5 +18,8 @@ int main(int argc, char **argv)
   test_time();
   std::cout<<"[TIME] all tests run successfully"<<std::endl;
   
+  test_broadcast();
+  std::cout<<"[BROADCAST] all tests run successfully"<<std::endl;
+  
   return 0;
 }

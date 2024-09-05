@@ -165,6 +165,7 @@ public:
                       // CMP    :tgd[0]=BGD1,tgd[1]=BGD2 
   double Adot,ndot;   // Adot,ndot for CNAV 
 public:
+  Nav();
   Nav(const char *rnx);
   void rnx2nav(const char *rnx);
   void nav2ecf(const Time& t, double *xyz, double *clock_bias) const;
