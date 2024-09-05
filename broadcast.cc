@@ -61,6 +61,30 @@ Nav::Nav(const char *rnx)
   rnx2nav(rnx);
 }
 
+#ifdef DEBUG
+void check_prn(const char *prn)
+{
+  int satnum;
+  
+  satnum=strtol(&prn[1],0,10);
+  switch(prn[0]){
+  case 'G': // GPS
+    if(satnum<1||satnum>32)
+      error("invalid GPS satellite PRN");
+  break; 
+  //case 'E': // Galileo
+  //break;
+  //case 'C':
+  //break;
+  //case 'I':
+  //break;
+  default:
+    error("invalid satellite system");
+  break;
+  }
+}
+#endif
+
 void Nav::rnx2nav(const char *rnx)
 {
   int i,j,k,n,w;
@@ -70,40 +94,51 @@ void Nav::rnx2nav(const char *rnx)
 
   // parsing lines
   lines[0]=rnx;
-  for(i=1,j=1;i<8;j++){
+  for(i=1,j=1;i<8;j++){ // we expect eight lines in the nav record
+#ifdef DEBUG
+    if(!rnx[j])
+      error("incomplete GPS Nav record");
+#endif 
     if(rnx[j]=='\n' // handles both Win32 & Linux
     ||(rnx[j]=='\r'&&rnx[j+1]!='\n')){// for MacOS
-      lines[i++]=rnx+(++j);
+      lines[i++]=rnx+(++j); // new line
     }
   }
 
-  // sat prn 
-  // some RINEX files omit the leading zero 
+  // satellite PRN 
+  // some RINEX files might omit the leading zero 
   prn[0]=lines[0][0];
   prn[1]=lines[0][1]==' '?'0':lines[0][1]; 
   prn[2]=lines[0][2];
   prn[3]=0;
 
-  // time of clock (toc)
-  strncpy(buf,lines[0]+4,19);
-  toc.from_rnx(buf);
+#ifdef DEBUG
+  check_prn(prn);
+#endif
 
   // reading parameters
   for(k=0,i=0;i<8;i++){
     n=strlen(lines[i]);
+    
     for(j=0;j<4;j++){
-      if(!i&&!j)
-        continue;
-      // some files might not have the entire last line populated
-      // thus, we need to check strlen(lines[i]) before reading 
       w=4+19*j;
-      if(w+19>n)
-        continue;      
+      
+      // some entries might not have the entire line populated
+      // thus, we need to check the line length before reading 
+      if(w+19>n){
+        k++; // skip parameter
+        continue; 
+      }      
       strncpy(buf,&lines[i][w],19);
+      
+      // first parameter is the time of clock (toc)
+      if(!i&&!j){
+        toc.from_rnx(buf);
+        continue;
+      }
+      
       fixflt(buf);
       par[k++]=strtod(buf,0);
-      
-    //  std::cout << par[k-1] << std::endl;
     }
   }
 
