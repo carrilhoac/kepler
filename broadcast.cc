@@ -284,7 +284,7 @@ std::string Nav::nav2rnx() const
     }
   }
   
-  for(i=0;i<7;i++){ // last line with EOL?
+  for(i=0;i<8;i++){ // all lines are given LF
     lines[i][80]='\n';
   }
   

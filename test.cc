@@ -9,17 +9,21 @@ void fail_(const char *from, const char *msg)
 
 int main(int argc, char **argv)
 { 
+  std::cout<<"[SPHEROID] ";
   test_ellps();
-  std::cout<<"[ELLPS] all tests run successfully"<<std::endl;
+  std::cout<<"all tests run successfully"<<std::endl;
   
+  std::cout<<"[MATRIX] ";
   test_linalg();
-  std::cout<<"[LINALG] all tests run successfully"<<std::endl;
+  std::cout<<"all tests run successfully"<<std::endl;
   
+  std::cout<<"[TIME] ";
   test_time();
-  std::cout<<"[TIME] all tests run successfully"<<std::endl;
+  std::cout<<"all tests run successfully"<<std::endl;
   
+  std::cout<<"[BROADCAST] ";
   test_broadcast();
-  std::cout<<"[BROADCAST] all tests run successfully"<<std::endl;
+  std::cout<<"all tests run successfully"<<std::endl;
   
   return 0;
 }
