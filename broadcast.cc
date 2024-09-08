@@ -1,19 +1,11 @@
 
 #include "kepler.h"
-#include <cstring>
-
-#define MU_GPS   3.9860050E14     // gravitational constant         ref [1] 
-#define MU_GLO   3.9860044E14     // gravitational constant         ref [2] 
-#define MU_GAL   3.986004418E14   // earth gravitational constant   ref [7] 
-#define MU_CMP   3.986004418E14   // earth gravitational constant   ref [9] 
-#define OMGE_GLO 7.292115E-5      // earth angular velocity (rad/s) ref [2] 
-#define OMGE_GAL 7.2921151467E-5  // earth angular velocity (rad/s) ref [7] 
-#define OMGE_CMP 7.292115E-5      // earth angular velocity (rad/s) ref [9] 
-#define OMGE_GPS 7.2921151467E-5  // earth angular velocity (rad/s) (IS-GPS)
-
-#define CLIGHT      299792458.0   // speed of light (m/s)
+#include "constants.h"
 
 #define POW2(x) (x*x)
+
+//////////////////////////////////////////////////////////////////////
+// GPS Nav broadcast
 
 // ura values (ref [3] 20.3.3.3.1.1)
 static const double ura_eph[16] =
@@ -221,6 +213,13 @@ void Nav::nav2ecf(const Time& t, double *xyz, double *clock_bias) const
     *clock_bias=dts;
 }
 
+Vec3 Nav::nav2ecf(const Time& t, double *clock_bias) const 
+{
+  Vec3 r;
+  nav2ecf(t,&r.v[0],clock_bias);
+  return r;
+}
+
 std::string Nav::nav2rnx() const 
 {
   int i,j,k,w;
@@ -228,6 +227,10 @@ std::string Nav::nav2rnx() const
   char *lines[8];
   double par[32]={0};
   int cal[6];
+  
+  std::string rnx;
+  rnx.resize(81*8,' ');
+  s=rnx.data();
   
   par[0]=f0; 
   par[1]=f1; 
@@ -256,11 +259,6 @@ std::string Nav::nav2rnx() const
   par[22]=flag;
   par[25]=tgd[0];
   par[28]=fit;
-
-  
-  std::string rnx;
-  rnx.resize(81*8,' ');
-  s=rnx.data();
   
   for(i=0;i<8;i++){
     lines[i]=s+i*81;
@@ -284,7 +282,7 @@ std::string Nav::nav2rnx() const
     }
   }
   
-  for(i=0;i<8;i++){ // all lines are given LF
+  for(i=0;i<8;i++){ // all lines are given LF as EOL
     lines[i][80]='\n';
   }
   
