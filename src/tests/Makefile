@@ -4,9 +4,8 @@ CFLAGS= -Wall -O3 -mavx2 -pedantic -std=c++20 -DDEBUG
 
 OBJS_TEST = test_math.o test_time.o test_spheroid.o test_ephemeris.o
 
-all: tests
-	./tests
-	
+all: test
+
 # ---------------------------------------------------------------------------
 # TESTS
 # ---------------------------------------------------------------------------
@@ -22,11 +21,14 @@ test_time.o: test_time.cc
 test_ephemeris.o: test_ephemeris.cc
 	${CC} ${CFLAGS} -c test_ephemeris.cc
 	
-tests: ../kepler.h ../libkepler.a test.h test.cc ${OBJS_TEST}
-	${CC} ${CFLAGS} -o tests test.cc ${OBJS_TEST} ../libkepler.a
+test_all: ../kepler.h ../libkepler.a test.h test.cc ${OBJS_TEST}
+	${CC} ${CFLAGS} -o test_all test.cc ${OBJS_TEST} ../libkepler.a
 	
+test: test_all
+	./test_all
+
 # ---------------------------------------------------------------------------
 # CLEAN
 # ---------------------------------------------------------------------------
 clean:
-	rm -f *.o tests
+	rm -f *.o test_all
