@@ -26,27 +26,6 @@ static bool check_lon(double lon_deg)
 }
 #endif 
 
-// ---------------------------------------------------------------------------
-//  Analogous to the hypot() function introduced in std=c99
-//   sqrt(x*x + y*y + z*z)
-// ---------------------------------------------------------------------------
-template<typename real>
-real hypot3(real x, real y, real z)
-{
-  real    w;
-
-  x= fabs(x);
-  y= fabs(y);
-  z= fabs(z);
-  if(x > y){ w=x; x=y; y=w; }
-  if(x > z){ w=x; x=z; z=w; }
-  if(y > z){ w=y; y=z; z=w; }
-  w= real(1) / z;
-  x*= w;
-  y*= w;
-  return sqrt(x*x + y*y + real(1)) * z;
-}
-
 Spheroid::Spheroid(eSPHEROID ellps)
 {
   set(ellps);
@@ -296,7 +275,7 @@ void Spheroid::ecf2geo(const double *xyz, double *geo) const
 #ifdef DEBUG
   if(!xyz||!geo)
     error("null pointers");
-  if(hypot3(xyz[0],xyz[1],xyz[2])<EPS)
+  if(pythag(xyz[0],xyz[1],xyz[2])<EPS)
     warn("invalid ECEF coordinates");
 #endif
   int i;

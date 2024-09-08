@@ -140,11 +140,14 @@ Vec3 Vec3::operator/(double s) const
 ///  \f$ sqrt(x*x + y*y + z*z) \f$
 double Vec3::norm() const 
 {
-// hypot3 ?? the way it is right now can cause overflow
+#if 1
+  return pythag(v[0],v[1],v[2]);
+#else 
   return sqrt(
     v[0]*v[0]+ 
     v[1]*v[1]+ 
     v[2]*v[2]);
+#endif 
 }
 
 ///  Sets 'this' Vector length to one, i.e. 
@@ -181,6 +184,15 @@ double dot(const Vec3 &a, const Vec3 &b)
     a.v[0]*b.v[0]+ 
     a.v[1]*b.v[1]+ 
     a.v[2]*b.v[2];
+}
+
+///  Cross Product
+///  \f$ c = a * b \f$
+Vec3 cross(const Vec3 &a, const Vec3 &b)
+{
+  Vec3 c;
+  cross(c,a,b);
+  return c;
 }
 
 ///  Cross Product

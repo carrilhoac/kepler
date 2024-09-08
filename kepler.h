@@ -37,6 +37,26 @@
 #endif 
 
 //////////////////////////////////////////////////////////////////////
+// Analogous to hypot() but for 3D values
+//  sqrt(x*x + y*y + z*z)
+template<typename real>
+real pythag(real x, real y, real z)
+{
+  real w;
+  x= fabs(x);
+  y= fabs(y);
+  z= fabs(z);
+  if(x > y){ w=x; x=y; y=w; }
+  if(x > z){ w=x; x=z; z=w; }
+  if(y > z){ w=y; y=z; z=w; }
+  w= real(1) / z;
+  x*= w;
+  y*= w;
+  return sqrt(x*x + y*y + real(1)) * z;
+}
+
+
+//////////////////////////////////////////////////////////////////////
 //  Unix Time point
 
 class alignas(16) Time{
@@ -82,40 +102,6 @@ private:
 
 #include "timesys.h" // implementation for templated Time methods 
 
-//////////////////////////////////////////////////////////////////////
-//  Spheroid 
-
-class Spheroid{
-private:
-  double a,b,f,e,e2,rr;
-  double alpha[8],beta[8];  
-public:
-  enum eSPHEROID{
-    WGS66,
-    WGS72,
-    WGS84,
-    GRS67,
-    GRS80,
-    PZ90 ,
-    SAD69
-  };
-public:
-  Spheroid(eSPHEROID ellps=WGS84);
-  void set(eSPHEROID ellps);
-  void set(double a_, double f_);  
-  double geodesic(double lat1deg, double lon1deg, 
-                  double lat2deg, double lon2deg) const;
-  void ecf2geo(const double *xyz, double *geo) const;
-  void geo2ecf(const double *geo, double *xyz) const;
-  void utm2geo(const double *utm, double *geo, int zone, char h) const;
-  void geo2utm(const double *geo, double *utm, int *zone, char *h) const;
-  static double utmscale(double lon_deg);
-private:
-  static void utmzone(double lon_deg, int *zone, double *cm_deg); // or public?
-  double cnflat(double phi) const;
-};
-
-
 
 //////////////////////////////////////////////////////////////////////
 //  Vector 3D
@@ -159,10 +145,12 @@ public:
 
 double dist(const Vec3& a, const Vec3& b);
 double dot(const Vec3& a, const Vec3& b);
-//Vec3 cross(const Vec3& a, const Vec3& b);
+Vec3 cross(const Vec3& a, const Vec3& b);
 void cross(Vec3& c, const Vec3& a, const Vec3& b);
 
+
 #define MATRIX_EPS 1e-11
+
 
 //////////////////////////////////////////////////////////////////////
 //  Matrix (row-major layout)
@@ -209,6 +197,42 @@ public:
   friend std::ostream& operator<<(std::ostream& os, const Mat& b);
 };
 
+
+//////////////////////////////////////////////////////////////////////
+//  Spheroid 
+
+class Spheroid{
+private:
+  double a,b,f,e,e2,rr;
+  double alpha[8],beta[8];  
+public:
+  enum eSPHEROID{
+    WGS66,
+    WGS72,
+    WGS84,
+    GRS67,
+    GRS80,
+    PZ90 ,
+    SAD69
+  };
+public:
+  Spheroid(eSPHEROID ellps=WGS84);
+  void set(eSPHEROID ellps);
+  void set(double a_, double f_);  
+  double geodesic(double lat1deg, double lon1deg, 
+                  double lat2deg, double lon2deg) const;
+  void ecf2geo(const double *xyz, double *geo) const;
+  void geo2ecf(const double *geo, double *xyz) const;
+  void utm2geo(const double *utm, double *geo, int zone, char h) const;
+  void geo2utm(const double *geo, double *utm, int *zone, char *h) const;
+  static double utmscale(double lon_deg);
+private:
+  static void utmzone(double lon_deg, int *zone, double *cm_deg); // or public?
+  double cnflat(double phi) const;
+};
+
+
+
 //////////////////////////////////////////////////////////////////////
 //  Broadcast ephemeris
 
@@ -239,6 +263,7 @@ public:
   Nav(const char *rnx);
   void rnx2nav(const char *rnx);
   void nav2ecf(const Time& t, double *xyz, double *clock_bias) const;
+  Vec3 nav2ecf(const Time& t, double *clock_bias) const;
   std::string nav2rnx() const;
 };
 
