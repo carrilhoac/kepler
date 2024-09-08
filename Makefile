@@ -1,8 +1,8 @@
 
 CC=g++
-CFLAGS= -Wall -O3 -pedantic -std=c++20 -DDEBUG
+CFLAGS= -Wall -O3 -mavx2 -pedantic -std=c++20 -DDEBUG
 
-OBJS_LIB = spheroid.o matrix.o timesys.o broadcast.o
+OBJS_LIB = spheroid.o vec3.o matrix.o timesys.o broadcast.o
 OBJS_TEST= test_spheroid.o test_matrix.o test_timesys.o test_broadcast.o
 
 all: libkepler.a
@@ -18,6 +18,8 @@ libkepler.a: kepler.h ${OBJS_LIB}
 # ---------------------------------------------------------------------------
 spheroid.o: kepler.h spheroid.cc
 	${CC} ${CFLAGS} -c spheroid.cc
+vec3.o: kepler.h vec3.cc
+	${CC} ${CFLAGS} -c vec3.cc
 matrix.o: kepler.h matrix.cc
 	${CC} ${CFLAGS} -c matrix.cc
 timesys.o: kepler.h timesys.cc

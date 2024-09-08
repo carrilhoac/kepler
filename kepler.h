@@ -8,6 +8,17 @@
 #ifndef KEPLER_h
 #define KEPLER_h
 
+#if (__cplusplus < 201703L)
+  #error C++17 or later is required 
+  /// C++17 or later is needed in order to have proper alignment of 
+  /// SIMD data inside std::vector<> containers (otherwise segfault)
+#endif
+
+#if defined(__AVX2__)
+  #include <immintrin.h>
+  #define SIMD_x86 1 /// Assuming we have both AVX2 and FMA3 
+#endif 
+
 #include <iostream>
 #include <iomanip>
 #include <vector>
@@ -28,7 +39,7 @@
 //////////////////////////////////////////////////////////////////////
 //  Unix Time point
 
-class Time{
+class alignas(16) Time{
 public:
   int64_t t_sec;
   double t_frac;
@@ -104,6 +115,52 @@ private:
   double cnflat(double phi) const;
 };
 
+
+
+//////////////////////////////////////////////////////////////////////
+//  Vector 3D
+
+class alignas(32) Vec3{
+public:
+  union{
+    // last element is ignored throughout the code
+    // it is only defined to match the size of AVX2 register
+    double v[4]; 
+#ifdef SIMD_x86  
+    __m256d r;   
+#endif 
+  };
+public:
+  Vec3(double X=0.0,double Y=0.0,double Z=0.0);
+  Vec3(const Vec3& b);
+  Vec3& operator=(const Vec3& b);
+  Vec3& operator+=(const Vec3& b);
+  Vec3& operator-=(const Vec3& b);
+  Vec3& operator*=(const Vec3& b); // element-wise product
+  Vec3& operator*=(double s);
+  Vec3& operator/=(double s);
+  Vec3 operator+(const Vec3& b) const;
+  Vec3 operator-(const Vec3& b) const;
+  Vec3 operator*(const Vec3& b) const;
+  Vec3 operator*(double s) const;
+  Vec3 operator/(double s) const;
+  Vec3& unit();
+  double norm() const;
+        double* data()      { return &v[0]; }
+  const double* data() const{ return &v[0]; }
+  double x() const{ return v[0]; }
+  double y() const{ return v[1]; }
+  double z() const{ return v[2]; }
+  double& x() { return v[0]; }
+  double& y() { return v[1]; }
+  double& z() { return v[2]; }
+  friend std::ostream& operator<<(std::ostream& os, const Vec3& b);
+};
+
+double dist(const Vec3& a, const Vec3& b);
+double dot(const Vec3& a, const Vec3& b);
+//Vec3 cross(const Vec3& a, const Vec3& b);
+void cross(Vec3& c, const Vec3& a, const Vec3& b);
 
 #define MATRIX_EPS 1e-11
 
