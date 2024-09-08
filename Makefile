@@ -2,7 +2,7 @@
 CC=g++
 CFLAGS= -Wall -O3 -mavx2 -pedantic -std=c++20 -DDEBUG
 
-OBJS_LIB = spheroid.o math.o time.o ephemeris.o atmosphere.o
+OBJS_LIB = core.o spheroid.o math.o time.o ephemeris.o atmosphere.o
 OBJS_TEST= test_spheroid.o test_math.o test_time.o test_ephemeris.o
 
 all: libkepler.a
@@ -16,6 +16,8 @@ libkepler.a: kepler.h constants.h ${OBJS_LIB}
 # ---------------------------------------------------------------------------
 # OBJ files
 # ---------------------------------------------------------------------------
+core.o: kepler.h core.cc
+	${CC} ${CFLAGS} -c core.cc
 spheroid.o: kepler.h spheroid.cc
 	${CC} ${CFLAGS} -c spheroid.cc
 math.o: kepler.h math.cc

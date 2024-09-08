@@ -61,24 +61,52 @@ real pythag(real x, real y, real z)
 //  Memory chunk
 
 class Mem{
-private:
-  std::vector<unsigned char> data;
-  int pos;
+protected:
+  std::vector<char> data;
+  std::size_t pos;
 public:
   enum eSEEKPOS{
     BEG,
     END,
     CUR
   };
-  int tell() const{ return pos; }
-  Mem& seek(int offset, eSEEKPOS from=BEG);
+public:
+  Mem() {}
+  void load(const char *filepath);
+  void save(const char *filepath) const;
+  std::size_t tell() const{ return pos; }
+  Mem& seek(std::size_t offset, eSEEKPOS from=BEG);
   Mem& append(const Mem& b);
-  int read(char *buf, int num);
-  int write(const char *buf, int num);
+  std::size_t read(char *buf, std::size_t num);
+  std::size_t write(const char *buf, std::size_t num);
 #ifdef HAVE_ZLIB
   Mem gz_encode() const;
   Mem gz_decode() const;
 #endif 
+};
+
+
+//////////////////////////////////////////////////////////////////////
+// ASCII multi-line text 
+
+class Text{
+protected:
+  Mem data;
+  std::vector<char*> lines;
+public:
+  Text();
+  const char* line(int index) const;
+        char* line(int index);
+  void parse(const char *text);
+  void load(const char *filepath);
+  void save(const char *filepath, const char *eol="\n") const;
+  int line_count() const{ return lines.size(); }
+  int find_line(const char *key, int start_line=0) const;
+  Text grep(const char *key) const;
+  Text head(int num) const;
+  Text tail(int num) const;
+  Text slice(int start_line, int num_lines) const;
+  friend std::ostream& operator<<(std::ostream& os, const Text& t);
 };
 
 
@@ -227,7 +255,7 @@ public:
 //  Spheroid 
 
 class Spheroid{
-private:
+protected:
   double a,b,f,e,e2,rr;
   double alpha[8],beta[8];  
 public:
