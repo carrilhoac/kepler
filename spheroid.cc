@@ -7,12 +7,8 @@
 // ---------------------------------------------------------------------------
 
 #include "kepler.h"
+#include "constants.h"
 
-#define PI  3.1415926535897932384626
-#define PI2 1.5707963267948966192313
-#define D2R 0.017453292519943295 // pi/180
-#define R2D 57.29577951308232087 // 180/pi
-#define EPS 1e-12 // machine epsilon IEEE 64-bit
 #define POW2(x) (x*x)
 
 #ifdef DEBUG
