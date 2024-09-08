@@ -2,8 +2,8 @@
 CC=g++
 CFLAGS= -Wall -O3 -mavx2 -pedantic -std=c++20 -DDEBUG
 
-OBJS_LIB = spheroid.o vec3.o matrix.o timesys.o broadcast.o atmosphere.o
-OBJS_TEST= test_spheroid.o test_matrix.o test_timesys.o test_broadcast.o
+OBJS_LIB = spheroid.o math.o time.o ephemeris.o atmosphere.o
+OBJS_TEST= test_spheroid.o test_math.o test_time.o test_ephemeris.o
 
 all: libkepler.a
 
@@ -18,14 +18,12 @@ libkepler.a: kepler.h constants.h ${OBJS_LIB}
 # ---------------------------------------------------------------------------
 spheroid.o: kepler.h spheroid.cc
 	${CC} ${CFLAGS} -c spheroid.cc
-vec3.o: kepler.h vec3.cc
-	${CC} ${CFLAGS} -c vec3.cc
-matrix.o: kepler.h matrix.cc
-	${CC} ${CFLAGS} -c matrix.cc
-timesys.o: kepler.h timesys.cc
-	${CC} ${CFLAGS} -c timesys.cc
-broadcast.o: kepler.h broadcast.cc 
-	${CC} ${CFLAGS} -c broadcast.cc
+math.o: kepler.h math.cc
+	${CC} ${CFLAGS} -c math.cc
+time.o: kepler.h time.cc
+	${CC} ${CFLAGS} -c time.cc
+ephemeris.o: kepler.h ephemeris.cc 
+	${CC} ${CFLAGS} -c ephemeris.cc
 atmosphere.o: kepler.h atmosphere.cc 
 	${CC} ${CFLAGS} -c atmosphere.cc
 
@@ -34,12 +32,12 @@ atmosphere.o: kepler.h atmosphere.cc
 # ---------------------------------------------------------------------------
 test_spheroid.o: test_spheroid.cc libkepler.a
 	${CC} ${CFLAGS} -c test_spheroid.cc
-test_matrix.o: test_matrix.cc libkepler.a
-	${CC} ${CFLAGS} -c test_matrix.cc
-test_timesys.o: test_timesys.cc libkepler.a
-	${CC} ${CFLAGS} -c test_timesys.cc
-test_broadcast.o: test_broadcast.cc libkepler.a 
-	${CC} ${CFLAGS} -c test_broadcast.cc
+test_math.o: test_math.cc libkepler.a
+	${CC} ${CFLAGS} -c test_math.cc
+test_time.o: test_time.cc libkepler.a
+	${CC} ${CFLAGS} -c test_time.cc
+test_ephemeris.o: test_ephemeris.cc libkepler.a 
+	${CC} ${CFLAGS} -c test_ephemeris.cc
 tests: kepler.h libkepler.a test.h test.cc ${OBJS_TEST}
 	${CC} ${CFLAGS} -o tests test.cc ${OBJS_TEST} ./libkepler.a
 test: tests

@@ -116,19 +116,16 @@ static const double ion_default[8] =
   0.1167E+06,-0.2294E+06,-0.1311E+06, 0.1049E+07
 };
   
-#if 0
 // Move this to a class
 // Klobuchar
-double ionmod(const Time& t, const double *ion, const double *geo, 
-  const double *azel)
+double Klob::ionmod(const Time& t, const double *geo, const double *azel) const
 {
   double tt,tow,f,psi,phi,lam,amp,per,x;
-  int week;
 
   //if (geo[2]<-1E3||azel[1]<=0) return 0.0;
   //if (norm(ion,8)<=0.0) ion=ion_default;
-  if(!ion)
-    ion=ion_default;
+//  if(!ion)
+//    ion=ion_default;
 
   // earth centered angle (semi-circle)
   psi=0.0137/(azel[1]/PI+0.11)-0.022;
@@ -146,6 +143,7 @@ double ionmod(const Time& t, const double *ion, const double *geo,
 
   // local time (s)
   ///tow=unx2gps(t,&week);
+  tow=t.gps_tow();
   tt=43200.0*lam+tow;//time2gpst(t,&week);
   tt-=floor(tt/86400.0)*86400.0; // 0<=tt<86400
 
@@ -161,5 +159,4 @@ double ionmod(const Time& t, const double *ion, const double *geo,
 
   return CLIGHT*f*(fabs(x)<1.57?5E-9+amp*(1.0+x*x*(-0.5+x*x/24.0)):5E-9);
 }
-#endif 
 

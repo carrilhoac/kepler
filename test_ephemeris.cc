@@ -47,5 +47,34 @@ void test_broadcast()
 
     if(ref.compare(eph.nav2rnx()))
       fail("incorrect RINEX Nav output");
+    #if 0
+    Time t;
+    double sat_xyz[3];
+    double clock_bias;
+    
+    t.from_rnx("2024 07 15 22 00 00");
+    for(double x=30; x<60; x+=1.0)
+    {
+      eph.nav2ecf(t-x, sat_xyz, &clock_bias);
+      
+      sat_xyz[0]/=1e3; // from meters to kilometers
+      sat_xyz[1]/=1e3;
+      sat_xyz[2]/=1e3;
+      clock_bias *= 1e6; // convert from seconds to microseconds
+      
+      std::cout<<std::fixed;
+      std::cout<<x<<'\t'<<sat_xyz[0]<<'\t'<<sat_xyz[1]<<'\t'<<sat_xyz[2]<<'\t';
+      std::cout<<clock_bias<<std::endl;
+    }
+   #endif 
+
+//*  2024  7 15 22  0  0.00000000
+//PG01 -10071.415123 -12260.750456 -21707.551434    241.257286
+
+// From SP3  
+// P: position
+// G01 satellite PRN
+// -10071.415123 -12260.750456 -21707.551434: ECEF coordinates (km)
+// 241.257286 clock microseconds
   }
 }

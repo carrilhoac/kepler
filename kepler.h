@@ -58,6 +58,31 @@ real pythag(real x, real y, real z)
 
 
 //////////////////////////////////////////////////////////////////////
+//  Memory chunk
+
+class Mem{
+private:
+  std::vector<unsigned char> data;
+  int pos;
+public:
+  enum eSEEKPOS{
+    BEG,
+    END,
+    CUR
+  };
+  int tell() const{ return pos; }
+  Mem& seek(int offset, eSEEKPOS from=BEG);
+  Mem& append(const Mem& b);
+  int read(char *buf, int num);
+  int write(const char *buf, int num);
+#ifdef HAVE_ZLIB
+  Mem gz_encode() const;
+  Mem gz_decode() const;
+#endif 
+};
+
+
+//////////////////////////////////////////////////////////////////////
 //  Unix Time point
 
 class alignas(16) Time{
@@ -101,8 +126,10 @@ private:
   void normalize();
 };
 
-#include "timesys.h" // implementation for templated Time methods 
+#include "time.h" // implementation for templated Time methods 
 
+
+#define MATRIX_EPS 1e-11
 
 //////////////////////////////////////////////////////////////////////
 //  Vector 3D
@@ -148,9 +175,6 @@ double dist(const Vec3& a, const Vec3& b);
 double dot(const Vec3& a, const Vec3& b);
 Vec3 cross(const Vec3& a, const Vec3& b);
 void cross(Vec3& c, const Vec3& a, const Vec3& b);
-
-
-#define MATRIX_EPS 1e-11
 
 
 //////////////////////////////////////////////////////////////////////
@@ -266,6 +290,21 @@ public:
   void nav2ecf(const Time& t, double *xyz, double *clock_bias) const;
   Vec3 nav2ecf(const Time& t, double *clock_bias) const;
   std::string nav2rnx() const;
+};
+
+
+//////////////////////////////////////////////////////////////////////
+//  Klobuchar model
+
+class Klob{
+private:
+  double ion[8];
+public:
+  Klob();
+  Klob(const char *rnx);
+  void rnx2klb(const char *rnx);
+  std::string klb2rnx() const;
+  double ionmod(const Time& t, const double *geo, const double *azel) const;
 };
 
 #endif 
