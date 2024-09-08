@@ -1,4 +1,5 @@
 
+*.txt text eol=lf
 *.h text  eol=lf
 *.cc text  eol=lf
 Makefile text eol=lf
