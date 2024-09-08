@@ -134,6 +134,13 @@ Time Time::operator-(const Time& t) const
 }
 
 // Adapted from Howard Hinnant paper 
+//
+// returns the number of days since 1970-01-01
+// negative numbers are days prior to 1970-01-01
+//
+// y-m-d represents a date in the civil (Gregorian) calendar
+// m is in [1,12]
+// d is in [1, last_day_of_month(y,m)]
 int Time::civ2day(int y, int m, int d)
 {
   int era,yoe,doy,doe;
@@ -149,6 +156,24 @@ int Time::civ2day(int y, int m, int d)
   return era*146097+doe-719468;
 }
 
+// computes year/month/day in civil calendar 
+// z is number of days since 1970-01-01 
+void Time::day2civ(int z, int& y, int& m, int& d)
+{
+  int era,yoe,doy,doe,mp;
+  
+  z+=719468;
+  era=(z>=0?z:z-146096)/146097;
+  doe=z-era*146097;
+  yoe=(doe-doe/1460+doe/36524-doe/146096)/365;
+  y=yoe+era*400;
+  doy=doe-(365*yoe+yoe/4-yoe/100);
+  mp=(5*doy+2)/153;
+  d=doy-(153*mp+2)/5+1;
+  m=mp<10?mp+3:mp-9;
+  y+=m<=2;
+}
+
 int64_t Time::cal2unx(const int *cal)
 {
   int64_t days,secs;
@@ -156,6 +181,22 @@ int64_t Time::cal2unx(const int *cal)
   days=Time::civ2day(cal[0],cal[1],cal[2]);
   secs=cal[3]*SEC_HOUR+cal[4]*SEC_MIN+cal[5];
   return days*SEC_DAY+secs;
+}
+
+void Time::unx2cal(int64_t secs, int *cal)
+{
+  int64_t days;
+  int tod,dt;
+  
+  days=secs/SEC_DAY;
+  day2civ(days,cal[0],cal[1],cal[2]); // Y-M-D
+  
+  tod=secs-days*SEC_DAY;  // time of day
+  cal[3]=tod/SEC_HOUR; // hours
+  dt=cal[3]*SEC_HOUR;
+  cal[4]=(tod-dt)/SEC_MIN; // minutes
+  dt+=cal[4]*SEC_MIN;
+  cal[5]=tod-dt; // seconds
 }
 
 std::ostream& operator<<(std::ostream& os, const Time& t)

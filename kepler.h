@@ -10,8 +10,11 @@
 
 #include <iostream>
 #include <iomanip>
-#include <cmath>
 #include <vector>
+#include <string>
+
+#include <cmath>
+#include <cstdio>
 #include <cstdint>
 #include <cstdlib>
 
@@ -36,6 +39,7 @@ public:
   Time& from_cal(const int *cal); // y m d h m s
   Time& from_rnx(const char *rnx); // RINEX epoch string
   Time& from_gps(int gpsweek, double gpstow);
+  void to_cal(int *cal); // y m d h m s
   int gps_week() const;
   double gps_tow() const;
   double to_double() const;
@@ -59,7 +63,9 @@ public:
   template<typename FT> Time operator-(FT t) const;
   friend std::ostream& operator<<(std::ostream& os, const Time& t);
   static int civ2day(int y, int m, int d);
+  static void day2civ(int z, int& y, int& m, int& d);
   static int64_t cal2unx(const int *cal);
+  static void unx2cal(int64_t secs, int *cal);
 private:
   void normalize();
 };
@@ -177,6 +183,7 @@ public:
   Nav(const char *rnx);
   void rnx2nav(const char *rnx);
   void nav2ecf(const Time& t, double *xyz, double *clock_bias) const;
+  std::string nav2rnx() const;
 };
 
 #endif 
