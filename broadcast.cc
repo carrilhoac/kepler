@@ -85,6 +85,15 @@ void check_prn(const char *prn)
 }
 #endif
 
+// length of string until control character
+static int strlen_ctrl(const char *s)
+{
+  char *p = (char*)s;
+  while(!iscntrl(*p)) 
+    p++;
+  return p-s;
+}
+
 void Nav::rnx2nav(const char *rnx)
 {
   int i,j,k,n,w;
@@ -99,8 +108,8 @@ void Nav::rnx2nav(const char *rnx)
     if(!rnx[j]) // we expect eight lines in the nav record
       error("incomplete GPS Nav record");
 #endif 
-    if(rnx[j]=='\n' // handles both Win32 & Linux
-    ||(rnx[j]=='\r'&&rnx[j+1]!='\n')){// for MacOS
+    if(rnx[j]=='\n' // Win32, Unix (POSIX) and MacOS 10 or later
+    ||(rnx[j]=='\r'&&rnx[j+1]!='\n')){// for MacOS 9 and older
       lines[i++]=rnx+(++j); // new line
     }
   }
@@ -118,9 +127,9 @@ void Nav::rnx2nav(const char *rnx)
 
   // reading parameters
   for(k=0,i=0;i<8;i++){
-    n=strlen(lines[i]);    
+    n=strlen_ctrl(lines[i]);        
     for(j=0;j<4;j++){
-      w=4+19*j;      
+      w=4+19*j;
       if(w+19>n){
       // some entries might not have the entire line populated
       // thus, we need to check the line length before reading 
@@ -210,4 +219,74 @@ void Nav::nav2ecf(const Time& t, double *xyz, double *clock_bias) const
 
   if(clock_bias)
     *clock_bias=dts;
+}
+
+std::string Nav::nav2rnx() const 
+{
+  int i,j,k,w;
+  char *s;
+  char *lines[8];
+  double par[32]={0};
+  int cal[6];
+  
+  par[0]=f0; 
+  par[1]=f1; 
+  par[2]=f2;
+
+  par[10]=sqrt(A);par[ 8]=e  ; par[15]=i0  ; par[13]=OMG0; 
+  par[17]=omg ;   par[ 6]=M0 ; par[ 5]=deln; par[18]=OMGd; 
+  par[19]=idot;   par[16]=crc; par[ 4]=crs ; par[ 7]=cuc ;
+  par[ 9]=cus ;   par[12]=cic; par[14]=cis ;
+
+  par[ 3]=iode;
+  par[26]=iodc;
+  par[11]=toes;
+  par[21]=week;
+  
+#if 0
+  toe.from_gps(week, par[11]);
+  ttr.from_gps(week, par[27]);
+  adjweek(toe,toc);
+  adjweek(ttr,toc);
+#endif
+
+  par[20]=code;
+  par[24]=svh ;
+  //sva =uraindex(par[23]);
+  par[22]=flag;
+  par[25]=tgd[0];
+  par[28]=fit;
+
+  
+  std::string rnx;
+  rnx.resize(81*8,' ');
+  s=rnx.data();
+  
+  for(i=0;i<8;i++){
+    lines[i]=s+i*81;
+    lines[i][80]='\n';
+  }
+  
+  memcpy(&lines[0][0],prn,3);
+  
+  k=0;
+  for(i=0;i<8;i++){
+    for(j=0;j<4;j++){
+      w=4+19*j;
+      if(!i&&!j){
+        Time::unx2cal(toc.t_sec,cal);
+        snprintf(&lines[i][w],20,
+          "%4d %02d %02d %02d %02d %02d",
+          cal[0],cal[1],cal[2],cal[3],cal[4],cal[5]);        
+      } else {
+        snprintf(&lines[i][w],20,"%19.12E",par[k++]);
+      }
+    }
+  }
+  
+  for(i=0;i<7;i++){ // last line with EOL?
+    lines[i][80]='\n';
+  }
+  
+  return rnx;
 }
