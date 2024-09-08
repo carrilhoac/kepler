@@ -35,25 +35,11 @@ void test_time()
     test_from_rnx_unix("1980 01 06 00 00 00", 315964800.0);// GPS epoch
     
     // this first one is the DooM release date
-    test_from_rnx("1993 12 10 00 00 00",  726, 432000.0,  755481600.0); 
+    test_from_rnx("1993 12 10 00 00 00",  726, 432000.0,  755481600.0);
+    test_from_rnx("1999 01 01 00 00 00",  990, 432000.0,  915148800.0);
+    test_from_rnx("1999 12 31 23 59 59", 1042, 518399.0,  946684799.0);
+    test_from_rnx("2000 01 01 00 00 00", 1042, 518400.0,  946684800.0);
     test_from_rnx("2024 07 15 22 00 00", 2323, 165600.0, 1721080800.0);
     test_from_rnx("2030 08 08 14 19 57", 2639, 397197.0, 1912429197.0);
-    
-    // TODO: the same for these next two
-    rnx.from_rnx("1999 01 01 00 00 00"); 
-    if(rnx.gps_week()!=990)
-      fail("different GPS Week (990)");
-    if(fabs(rnx.gps_tow()-432000.0)>0.001)
-      fail("different GPS Time of Week (432000 s)");
-    
-    rnx.from_rnx("2000 01 01 00 00 00"); 
-    if(rnx.gps_week()!=1042)
-      fail("different GPS Week (1042)");
-    if(fabs(rnx.gps_tow()-518400.0)>0.001)
-      fail("different GPS Time of Week (518400 s)");
-    
-    
-    //std::cout << std::fixed;
-    //std::cout << rnx.to_double() << std::endl;
   }
 }

@@ -39,7 +39,6 @@ public:
   Time& from_cal(const int *cal); // y m d h m s
   Time& from_rnx(const char *rnx); // RINEX epoch string
   Time& from_gps(int gpsweek, double gpstow);
-  void to_cal(int *cal); // y m d h m s
   int gps_week() const;
   double gps_tow() const;
   double to_double() const;
