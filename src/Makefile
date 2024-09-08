@@ -34,8 +34,11 @@ atmosphere.o: kepler.h atmosphere.cc
 	${CC} ${CFLAGS} -c atmosphere.cc
 
 
+test: libkepler.a
+	cd tests && $(MAKE) test
+
 # ---------------------------------------------------------------------------
 # CLEAN
 # ---------------------------------------------------------------------------
 clean:
-	rm -f *.o libkepler.a
+	rm -f *.o libkepler.a && cd tests && $(MAKE) clean

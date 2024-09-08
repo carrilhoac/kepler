@@ -17,5 +17,5 @@ jobs:
       working-directory: ./src
       run: make
     - name: make test
-      working-directory: ./src/tests
+      working-directory: ./src
       run: make test
