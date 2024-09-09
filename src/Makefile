@@ -33,7 +33,9 @@ ephemeris.o: kepler.h ephemeris.cc
 atmosphere.o: kepler.h atmosphere.cc 
 	${CC} ${CFLAGS} -c atmosphere.cc
 
-
+# ---------------------------------------------------------------------------
+# TESTS
+# ---------------------------------------------------------------------------
 test: libkepler.a
 	cd tests && $(MAKE) test
 
