@@ -125,96 +125,54 @@ std::size_t Mem::write(const char *buf, std::size_t num)
   return num;
 }
 
-
 //////////////////////////////////////////////////////////////////////
-// ASCII multi-line text 
+// Text utility
 
-
-Text::Text(const char *s)
+// length of string until control character
+int strlen_ctrl(const char *s)
 {
-  dat.set(s, strlen(s));
-  parse();
+  char *p = (char*)s;
+  while(!iscntrl(*p)) 
+    p++;
+  return p-s;
 }
 
-Text& Text::operator=(const char *s)
+int count_lines(const char *s)
 {
-  dat.set(s, strlen(s));
-  parse();
-  return *this;
-}
+  int i,j;
   
-const char* Text::line(std::size_t index) const
-{
-#ifdef DEBUG
-  if(index>=lines.size())
-    error("position out of range");
-#endif
-  return lines[index];
-}
-
-char* Text::line(std::size_t index)
-{
-#ifdef DEBUG
-  if(index>=lines.size())
-    error("position out of range");
-#endif
-  return lines[index];
-}
-
-void Text::load(const char *filepath)
-{
-  dat.load(filepath);
-  parse();
-}
-
-void Text::save(const char *filepath, const char *eol) const
-{
-  std::size_t n=lines.size();
-  std::ofstream stream(filepath, std::ofstream::binary);
-  
-  for(std::size_t i=0; i<n; i++)
-    stream<< lines[i] << eol;
-}
-  
-int Text::find_line(const char *key, int start_line) const
-{
-  std::size_t n=lines.size();
-  std::size_t m=strlen(key);
-  
-  for(std::size_t i=start_line; i<n; i++)
-    if(strlen(lines[i])>=m)
-      if(strstr(lines[i],key))
-        return i;
-  
-  return -1;
-}
-
-std::ostream& operator<<(std::ostream& os, const Text& t)
-{
-  std::size_t n=t.lines.size();
-  
-  for(std::size_t i=0; i<n; i++)
-    os<<t.lines[i]<<std::endl;
-  
-  return os;
-}
-
-void Text::parse()
-{
-  std::size_t n=dat.size();
-  char *buf=dat.data();
-    
-  lines.clear();
-  
-  if(!n)
-    return;
-  
-  lines.push_back(&buf[0]);
-  for(std::size_t i=1; i<n-1; i++){
-    if(buf[i]=='\n' || (buf[i]=='\r'&&buf[i+1]!='\n')){
-      buf[i]=0;
-      lines.push_back(&buf[i+1]);
+  for(j=0,i=0;s[i];i++){
+    if(s[i]=='\n'||(s[i]=='\r'&&s[i+1]!='\n')){
+      j++;
     }
   }
+  return j;
 }
+
+int parse_lines_n(const char *s, const char **lines, int max_lines)
+{
+  int i,j;
   
+  lines[0]=s;  
+  for(i=1,j=1;i<max_lines;j++){
+    if(!s[j])
+      return i;
+    if(s[j]=='\n' // Win32, Unix (POSIX) and MacOS 10 or later
+    ||(s[j]=='\r'&&s[j+1]!='\n')){// for MacOS 9 and older
+      lines[i++]=s+(++j); // new line
+    }
+  }
+  return i;
+}
+
+const char **parse_lines(const char *s)
+{
+  int num;
+  const char **lines;
+  
+  num=count_lines(s);
+  lines=(const char**)malloc(num*sizeof(char*));
+  parse_lines_n(s, lines, num);
+  
+  return lines;
+}

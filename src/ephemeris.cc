@@ -45,14 +45,6 @@ static void adjweek(Time& t, const Time& t0)
     t.t_sec-=604800;
 }
 
-Nav::Nav()
-{}
-
-Nav::Nav(const char *rnx)
-{
-  rnx2nav(rnx);
-}
-
 #ifdef DEBUG
 void check_prn(const char *prn)
 {
@@ -77,24 +69,22 @@ void check_prn(const char *prn)
 }
 #endif
 
-// length of string until control character
-static int strlen_ctrl(const char *s)
+Nav::Nav()
+{}
+
+Nav::Nav(const char *rnx)
 {
-  char *p = (char*)s;
-  while(!iscntrl(*p)) 
-    p++;
-  return p-s;
+  rnx2nav(rnx);
 }
 
 void Nav::rnx2nav(const char *rnx)
 {
-  int i,j,k,n,w;  
+  int i,j,k,n,w;
+  const char *lines[8];
   char buf[20]={0};
   double par[32]={0};
-  char** lines;
-  
-  Text t(rnx);  
-  lines=t.ptr();
+
+  parse_lines_n(rnx,lines,8);
 
   // some RINEX files might omit the leading zero on the
   // satellite PRN, we standardize it here for later checks

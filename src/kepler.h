@@ -84,40 +84,15 @@ public:
   std::size_t read(char *buf, std::size_t num);
   std::size_t write(const char *buf, std::size_t num);
 #ifdef HAVE_ZLIB
-  Mem gz_encode() const;
-  Mem gz_decode() const;
+//  Mem gz_encode() const;
+//  Mem gz_decode() const;
 #endif 
 };
 
-
-//////////////////////////////////////////////////////////////////////
-// ASCII multi-line text 
-
-class Text{
-protected:
-  Mem dat;
-  std::vector<char*> lines;
-public:
-  Text(){}
-  Text(const char *s);
-  Text& operator=(const char *s);
-        char** ptr()      { return lines.data(); }
-  const char* line(std::size_t index) const;
-        char* line(std::size_t index);
-  //void parse(const char *text);
-  void load(const char *filepath);
-  void save(const char *filepath, const char *eol="\n") const;
-  int line_count() const{ return lines.size(); }
-  int find_line(const char *key, int start_line=0) const;
-  Text grep(const char *key) const;
-  Text head(int num) const;
-  Text tail(int num) const;
-  Text slice(int start_line, int num_lines) const;
-  friend std::ostream& operator<<(std::ostream& os, const Text& t);
-private:
-  void parse();
-};
-
+int strlen_ctrl(const char *s);
+int count_lines(const char *s);
+int parse_lines_n(const char *s, const char **lines, int max_lines);
+const char **parse_lines(const char *s);
 
 //////////////////////////////////////////////////////////////////////
 //  Unix Time point
