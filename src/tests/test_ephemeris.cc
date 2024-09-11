@@ -2,7 +2,7 @@
 #include "test.h"
 #include <cstring>
 
-void test_broadcast()
+void test_ephemeris()
 {
   {
     // a valid (but nasty) GPS nav record

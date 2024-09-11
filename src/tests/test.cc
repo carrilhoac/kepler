@@ -9,20 +9,24 @@ void fail_(const char *from, const char *msg)
 
 int main(int argc, char **argv)
 { 
-  std::cout<<"[SPHEROID] ";
-  test_ellps();
+  std::cout<<"[CORE] ";
+  test_core();
   std::cout<<"all tests run successfully"<<std::endl;
   
-  std::cout<<"[MATRIX] ";
-  test_linalg();
+  std::cout<<"[MATH] ";
+  test_math();
   std::cout<<"all tests run successfully"<<std::endl;
   
   std::cout<<"[TIME] ";
   test_time();
   std::cout<<"all tests run successfully"<<std::endl;
   
-  std::cout<<"[BROADCAST] ";
-  test_broadcast();
+  std::cout<<"[SPHEROID] ";
+  test_spheroid();
+  std::cout<<"all tests run successfully"<<std::endl;
+  
+  std::cout<<"[EPHEMERIS] ";
+  test_ephemeris();
   std::cout<<"all tests run successfully"<<std::endl;
   
   return 0;

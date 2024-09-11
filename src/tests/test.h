@@ -7,9 +7,10 @@
 void fail_(const char *from, const char *msg);
 #define fail(x) fail_(__PRETTY_FUNCTION__, x)
 
-void test_ellps();
-void test_linalg();
+void test_core();
 void test_time();
-void test_broadcast();
+void test_spheroid();
+void test_math();
+void test_ephemeris();
 
 #endif 

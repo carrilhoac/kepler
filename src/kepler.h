@@ -62,7 +62,7 @@ real pythag(real x, real y, real z)
 
 class Mem{
 protected:
-  std::vector<char> data;
+  std::vector<char> dat;
   std::size_t pos;
 public:
   enum eSEEKPOS{
@@ -72,9 +72,13 @@ public:
   };
 public:
   Mem() {}
+  void set(const char *buf, std::size_t num);
   void load(const char *filepath);
   void save(const char *filepath) const;
+        char *data()      { return &dat[0]; }
+  const char *data() const{ return &dat[0]; }
   std::size_t tell() const{ return pos; }
+  std::size_t size() const{ return dat.size(); }
   Mem& seek(std::size_t offset, eSEEKPOS from=BEG);
   Mem& append(const Mem& b);
   std::size_t read(char *buf, std::size_t num);
@@ -91,13 +95,16 @@ public:
 
 class Text{
 protected:
-  Mem data;
+  Mem dat;
   std::vector<char*> lines;
 public:
-  Text();
-  const char* line(int index) const;
-        char* line(int index);
-  void parse(const char *text);
+  Text(){}
+  Text(const char *s);
+  Text& operator=(const char *s);
+        char** ptr()      { return lines.data(); }
+  const char* line(std::size_t index) const;
+        char* line(std::size_t index);
+  //void parse(const char *text);
   void load(const char *filepath);
   void save(const char *filepath, const char *eol="\n") const;
   int line_count() const{ return lines.size(); }
@@ -107,6 +114,8 @@ public:
   Text tail(int num) const;
   Text slice(int start_line, int num_lines) const;
   friend std::ostream& operator<<(std::ostream& os, const Text& t);
+private:
+  void parse();
 };
 
 

@@ -150,7 +150,7 @@ static int test_utm2geo()
   return 0;
 }
 
-void test_ellps()
+void test_spheroid()
 { 
   test_geodesic();
   test_geo2ecf();

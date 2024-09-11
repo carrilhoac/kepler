@@ -296,7 +296,7 @@ static int test_inv()
   return 0;
 }
 
-void test_linalg()
+void test_math()
 {
   test_constr();
   test_ops();

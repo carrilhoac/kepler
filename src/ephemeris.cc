@@ -88,23 +88,13 @@ static int strlen_ctrl(const char *s)
 
 void Nav::rnx2nav(const char *rnx)
 {
-  int i,j,k,n,w;
-  const char *lines[8];
+  int i,j,k,n,w;  
   char buf[20]={0};
   double par[32]={0};
-
-  // parsing lines
-  lines[0]=rnx;
-  for(i=1,j=1;i<8;j++){ 
-#ifdef DEBUG
-    if(!rnx[j]) // we expect eight lines in the nav record
-      error("incomplete GPS Nav record");
-#endif 
-    if(rnx[j]=='\n' // Win32, Unix (POSIX) and MacOS 10 or later
-    ||(rnx[j]=='\r'&&rnx[j+1]!='\n')){// for MacOS 9 and older
-      lines[i++]=rnx+(++j); // new line
-    }
-  }
+  char** lines;
+  
+  Text t(rnx);  
+  lines=t.ptr();
 
   // some RINEX files might omit the leading zero on the
   // satellite PRN, we standardize it here for later checks
