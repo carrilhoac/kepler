@@ -12,5 +12,6 @@ void test_time();
 void test_spheroid();
 void test_math();
 void test_ephemeris();
+void test_atmosphere();
 
 #endif 

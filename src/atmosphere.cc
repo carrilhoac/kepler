@@ -72,11 +72,14 @@ double geomdist(const double *sat, const double *rec, double *los)
   return r+OMGE_GPS*s/CLIGHT;
 }
 
-double satazel(const double *geo, const double *los, double *azel)
+// rec - receiver position lat,lon,h (radians, meters)
+// los - line of sight vector (sat-rec) in ecef XYZ (meters)
+// azel - azimuth and elevation (radians)
+double satazel(const double *rec, const double *los, double *azel)
 {
   double az,el,enu[3]={0};
 
-  ecf2enu(geo,los,enu);
+  ecf2enu(rec,los,enu);
   az=atan2(enu[0],enu[1]);
   el=asin(enu[2]);
   if(az<0.0)
@@ -88,6 +91,9 @@ double satazel(const double *geo, const double *los, double *azel)
   }
   return el;
 }
+
+//////////////////////////////////////////////////////////////////////
+// Troposphere
 
 // Saastamoinen
 double tropmod(const double *geo, const double *azel, double humi)
@@ -109,6 +115,9 @@ double tropmod(const double *geo, const double *azel, double humi)
   return trph+trpw;
 }
 
+//////////////////////////////////////////////////////////////////////
+// Ionosphere
+
 // 2004/1/1
 static const double ion_default[8] = 
 { 
@@ -116,11 +125,16 @@ static const double ion_default[8] =
   0.1167E+06,-0.2294E+06,-0.1311E+06, 0.1049E+07
 };
   
-// Move this to a class
+Klob::Klob()
+{
+  for(int i=0; i<8; i++)
+    ion[i]=ion_default[i];
+}
+
 // Klobuchar
 double Klob::ionmod(const Time& t, const double *geo, const double *azel) const
 {
-  double tt,tow,f,psi,phi,lam,amp,per,x;
+  double tt,f,psi,phi,lam,amp,per,x;
 
   //if (geo[2]<-1E3||azel[1]<=0) return 0.0;
   //if (norm(ion,8)<=0.0) ion=ion_default;
@@ -142,9 +156,7 @@ double Klob::ionmod(const Time& t, const double *geo, const double *azel) const
   phi+=0.064*cos((lam-1.617)*PI);
 
   // local time (s)
-  ///tow=unx2gps(t,&week);
-  tow=t.gps_tow();
-  tt=43200.0*lam+tow;//time2gpst(t,&week);
+  tt=43200.0*lam+t.gps_tow();
   tt-=floor(tt/86400.0)*86400.0; // 0<=tt<86400
 
   // slant factor

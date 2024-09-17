@@ -86,13 +86,11 @@ void Nav::rnx2nav(const char *rnx)
 
   parse_lines_n(rnx,lines,8);
 
-  // some RINEX files might omit the leading zero on the
-  // satellite PRN, we standardize it here for later checks
-  prn[0]=lines[0][0]; 
+  prn[0]=lines[0][0];     
   prn[1]=lines[0][1]==' '?'0':lines[0][1]; 
   prn[2]=lines[0][2];
   prn[3]=0;
-  
+
 #ifdef DEBUG
   check_prn(prn);
 #endif
@@ -158,9 +156,14 @@ void Nav::nav2ecf(const Time& t, double *xyz, double *clock_bias) const
   tk=(t-toe).to_double();
   M=M0+(sqrt(mu/(A*A*A))+deln)*tk;
 
-  for(E=M,Ek=0, itr=0;itr<30 && fabs(E-Ek)<1e-14;itr++){
+  for(E=M,Ek=0, itr=0;itr<30 && fabs(E-Ek)>1e-14;itr++){
     Ek=E; E-=(E-e*sin(E)-M)/(1.0-e*cos(E));
   }
+
+#ifdef DEBUG
+  if(itr>25)
+    warn("iteration overflow");
+#endif 
 
   sinE=sin(E);
   cosE=cos(E);
@@ -267,4 +270,21 @@ std::string Nav::nav2rnx() const
   }
   
   return rnx;
+}
+
+
+// broadcast ephemeris to satellite clock bias
+// compute satellite clock bias with broadcast ephemeris (gps, galileo, qzss)
+// args  t   time by satellite clock (gpst)
+// return satellite clock bias (s) without relativity correction and tdg
+double Nav::eph2clk(const Time& t) const
+{
+  double tk,ts;
+  
+  tk=ts=(t-toc).to_double();
+  
+  for(int i=0; i<2; i++)
+     tk=ts-(f0+f1*tk+f2*tk*tk);
+   
+  return f0+f1*tk+f2*tk*tk;   
 }

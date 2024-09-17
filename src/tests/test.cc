@@ -29,5 +29,9 @@ int main(int argc, char **argv)
   test_ephemeris();
   std::cout<<"all tests run successfully"<<std::endl;
   
+  std::cout<<"[AMOSPHERE] ";
+  test_atmosphere();
+  std::cout<<"all tests run successfully"<<std::endl;
+  
   return 0;
 }

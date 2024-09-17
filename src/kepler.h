@@ -302,8 +302,12 @@ public:
   void nav2ecf(const Time& t, double *xyz, double *clock_bias) const;
   Vec3 nav2ecf(const Time& t, double *clock_bias) const;
   std::string nav2rnx() const;
+  double eph2clk(const Time& t) const;
 };
 
+
+double geomdist(const double *sat, const double *rec, double *los);
+double satazel(const double *geo, const double *los, double *azel);
 
 //////////////////////////////////////////////////////////////////////
 //  Klobuchar model
