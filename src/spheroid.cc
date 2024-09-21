@@ -26,24 +26,15 @@ Spheroid::Spheroid(eSPHEROID ellps){
 
 void Spheroid::set(eSPHEROID ellps)
 {
-  switch(ellps)
-  {
-  case WGS66:
-    set(6378145.0,1.0/298.25); break;
-  case WGS72:
-    set(6378135.0,1.0/298.26); break;
-  case WGS84:
-    set(6378137.0,1.0/298.257223563); break;
-  case GRS67:
-    set(6378160.0,1.0/298.247167427); break;
-  case GRS80:
-    set(6378137.0,1.0/298.257222100882711); break;
-  case PZ90:
-    set(6378136.0,1.0/298.257839303); break;
-  case SAD69:
-    set(6378160.0,1.0/298.25); break;
-  default: // to WGS84
-    set(6378137.0,1.0/298.257223563); break;
+  switch(ellps){
+  case WGS66: set(6378145.0,1.0/298.25); break;
+  case WGS72: set(6378135.0,1.0/298.26); break;
+  case WGS84: set(6378137.0,1.0/298.257223563); break;
+  case GRS67: set(6378160.0,1.0/298.247167427); break;
+  case GRS80: set(6378137.0,1.0/298.257222100882711); break;
+  case PZ90:  set(6378136.0,1.0/298.257839303); break;
+  case SAD69: set(6378160.0,1.0/298.25); break;
+  default:    set(6378137.0,1.0/298.257223563); break; // to WGS84
   }
 }
   
@@ -80,7 +71,8 @@ void Spheroid::set(double a_, double f_)
   rr=a/(1.0+n1)*(1.0+0.25*n2+0.015625*n4+0.00390625*n6+0.00006103515625*n8);
   
   // Coefficients for Karney-Kruger UTM equations: 
-  // Deakin, R.E.; Hunter, M.N.; Karney, C.F.F. A fresh look at the UTM projection.
+  // Deakin, R.E.; Hunter, M.N.; Karney, C.F.F. 
+  // A fresh look at the UTM projection.
   
   // Equation (62) Krueger eq, but extended to order n^8
   alpha[0]=n1*(1.0/2.0)-n2*(2.0/3.0)+n3*(5.0/16.0)+n4*(41.0/180.0)-
