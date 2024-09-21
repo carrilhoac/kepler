@@ -137,16 +137,13 @@ static int test_utm2geo()
   Spheroid grs80(Spheroid::GRS80);
   grs80.utm2geo(utm, geo, 22,'S');
   
-  //printf("%.9f %.9f\n",geo[0],geo[1]);
-  
   geo[0]-=ref[0];
   geo[1]-=ref[1];
   
-  if(fabs(geo[0])>1e-4
-   ||fabs(geo[1])>1e-4)
+  if(fabs(geo[0])>1e-8
+   ||fabs(geo[1])>1e-8)
     fail("incorrect Geodetic coordinates");
-    
-  //printf("%.9f %.9f\n",geo[0],geo[1]);
+  
   return 0;
 }
 
